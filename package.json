@@ -1,0 +1,33 @@
+{
+  "name": "systema-facturacion",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon -r dotenv/config ./bin/dev",
+    "clean": "rm -rf dist",
+    "build": "mkdir dist && babel src -s -d dist",
+    "production": "npm run clean && npm run build && node -r dotenv/config ./bin/production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felixavco/systema-facturacion.git"
+  },
+  "author": "Felix Avelar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/felixavco/systema-facturacion/issues"
+  },
+  "homepage": "https://github.com/felixavco/systema-facturacion#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/register": "^7.5.5",
+    "nodemon": "^1.19.1"
+  },
+  "dependencies": {
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1"
+  }
+}
