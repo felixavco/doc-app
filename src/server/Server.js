@@ -1,8 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
-import sequelize from './db_connection';
-import db_sync from './db_sync';
+// import sequelize from './db_connection';
 
 class Server {
     constructor(PORT) {
@@ -24,16 +23,13 @@ class Server {
     }
 
     start() {
-        sequelize
-            .authenticate()
-            .then(() => {
-                console.log("Connected to DB");
-
-                db_sync();
-
+        // sequelize
+        //     .authenticate()
+        //     .then(() => {
+        //         console.log("Connected to DB");
                 this.server.listen(this.PORT, () => console.log('Server started on port ' + this.PORT));
-            })
-            .catch(err => console.error("Connection Error: " + err));
+            // })
+            // .catch(err => console.error("Connection Error: " + err));
     }
 
 
