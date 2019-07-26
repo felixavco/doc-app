@@ -1,6 +1,7 @@
-import Server from './server/server';
+import Server from './server';
+const { SERVER_PORT } = process.env;
 
-const server = new Server(process.env.SERVER_PORT || 5000);
+const server = new Server(SERVER_PORT);
 
 server.start();
 

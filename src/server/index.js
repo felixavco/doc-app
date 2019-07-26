@@ -2,6 +2,10 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 
+//* Routes
+import AccountRoutes from '../routes/api/Account';
+import UserRoutes from '../routes/api/User';
+
 class Server {
     constructor(PORT) {
         this.PORT = PORT;
@@ -18,7 +22,8 @@ class Server {
     }
 
     routes() {
-        this.server.use('/', (req, res) => res.send("<h1>Hello World!</h1>"))
+        this.server.use('/api/account', AccountRoutes);
+        this.server.use('/api/user/register', UserRoutes);
     }
 
     start() {

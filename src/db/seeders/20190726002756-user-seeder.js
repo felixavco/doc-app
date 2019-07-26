@@ -1,26 +1,35 @@
 'use strict';
 
+let users = [];
+let acct = 1;
+
+for(let i = 1; i <= 50; i++) {
+
+  if(i % 5 === 0) {
+    acct++
+  }
+
+  users.push({
+    firstName: `User_acct_${acct}_${i}`,
+    lastName: `User_lastName_${acct}_${i}`,
+    middleName: `User_middleName_${acct}_${i}`,
+    lastName: `User_Surname_${acct}_${i}`,
+    email: `user_acct_${acct}_${i}@mail${acct}.com`,
+    password: 'abc321', 
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    accountId: acct
+  })
+}
+
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    /*
-      Add altering commands here.
-      Return a promise to correctly handle asynchronicity.
-
-      Example:
-      return queryInterface.bulkInsert('People', [{
-        name: 'John Doe',
-        isBetaMember: false
-      }], {});
-    */
+  
+      return queryInterface.bulkInsert('users', users, {});
+    
   },
 
   down: (queryInterface, Sequelize) => {
-    /*
-      Add reverting commands here.
-      Return a promise to correctly handle asynchronicity.
-
-      Example:
-      return queryInterface.bulkDelete('People', null, {});
-    */
+      return queryInterface.bulkDelete('users', null, {});
   }
 };
