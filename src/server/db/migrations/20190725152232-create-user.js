@@ -38,7 +38,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       },
-      accountId: {
+      clinicId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },

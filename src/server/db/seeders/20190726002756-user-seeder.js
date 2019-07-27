@@ -18,7 +18,7 @@ for (let i = 1; i <= 1500; i++) {
     password: 'abc321',
     createdAt: new Date(),
     updatedAt: new Date(),
-    accountId: acct
+    clinicId: acct
   });
 }
 

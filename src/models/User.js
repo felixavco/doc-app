@@ -9,13 +9,13 @@ module.exports = (sequelize, DataTypes) => {
     lastName2: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    accountId: DataTypes.INTEGER,
+    clinicId: DataTypes.INTEGER,
     verificationToken: DataTypes.STRING, 
     expVerificationToken: DataTypes.DATE,
   }, {});
 
   User.associate = function({Clinic}) {
-    User.belongsTo(Clinic, { foreignKey: 'accountId' });
+    User.belongsTo(Clinic, { foreignKey: 'clinicId' });
   };
   return User;
 };

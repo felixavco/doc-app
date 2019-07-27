@@ -2,7 +2,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import db from '../../models';
-const { Account, User } = db;
+import Mailer from '../../server/mailer/Mailer';
+const { Clinic, User } = db;
 const { SECRET } = process.env;
 
 class UserController {
@@ -11,26 +12,26 @@ class UserController {
    * @Route '/api/user/register'
    * @Method POST
    * @Access Public
-   * @Description Creates the account to asociate the user, then and assig admin rights by default and sends verification email, return jwt token;
+   * @Description Creates the clinic to asociate the user, then and assig admin rights by default and sends verification email, return jwt token;
    */
   register = () => async (req, res) => {
     try {
       const { name, domain, firstName, lastName, email, password } = req.body;
-      const newAccount = { name, domain };
+      const newClinic = { name, domain };
       const newUser = { firstName, lastName, email, password };
 
       //* Checks if the domain is already taken
-      let account = await Account.findOne({ where: { domain } });
-      if (account) {
+      let clinic = await Clinic.findOne({ where: { domain } });
+      if (clinic) {
         return res.status(409).json({ message: `El dominio '${domain}' ya esta en uso por otra cuenta, selecione uno diferente.` })
       }
 
-      //* If the domain is available creates a new account.  
-      account = await Account.create(newAccount);
+      //* If the domain is available creates a new clinic.  
+      clinic = await Clinic.create(newClinic);
 
-      //* Create the relation between the user and the account through the account Id.
-      const accountId = account.dataValues.id
-      newUser.accountId = accountId;
+      //* Create the relation between the user and the clinic through the clinic Id.
+      const clinicId = clinic.dataValues.id
+      newUser.clinicId = clinicId;
 
       //* Checks if the email is already in use
       let user = await User.findOne({ where: { email } });
@@ -51,9 +52,9 @@ class UserController {
           newUser.password = hash;
           User.create(newUser)
             .then(user => {
-              const { id, firstName, lastName, accountId } = user.dataValues;
+              const { id, firstName, lastName, clinicId } = user.dataValues;
 
-              //TODO SEND VERIFICATIO TOKEN VIA EMAIL
+              //TODO MAILER 
 
               //* Prepare JWT Payload
               const payload = {
@@ -62,7 +63,7 @@ class UserController {
                 middleName: user.dataValues.middleName || "",
                 lastName,
                 lastName2: user.dataValues.lastName2 || "",
-                accountId
+                clinicId
               }
               //*Send JWT token
               jwt.sign(payload, SECRET, { expiresIn: '1d' }, (err, token) => {
@@ -94,6 +95,23 @@ class UserController {
       console.error("_catch: " + error);
       res.status(500).json({ ERROR: error.toString() });
     }
+  }
+
+  mailTester = () => (req, res) => {
+
+    const mailer = new Mailer();
+
+    const msgData = {
+      from: "tica.email.team@gmail.com", 
+      to: "felixavco@gmail.com",
+      bcc: "hey@felixavelar.com", 
+      replyTo: "tica.mail.team@gmail.com", 
+      subject: "Hello this is a test from Mailer"
+    }
+
+    mailer.send(msgData, "<h1>Hello this a test message</h1>")
+
+    res.send("Testing Mailer......");
   }
 
 }
