@@ -1,5 +1,5 @@
 {
-  "name": "systema-facturacion",
+  "name": "doc-app",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/felixavco/systema-facturacion.git"
+    "url": "git+https://github.com/felixavco/doc-app.git"
   },
   "author": "Felix Avelar",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/felixavco/systema-facturacion/issues"
+    "url": "https://github.com/felixavco/doc-app/issues"
   },
-  "homepage": "https://github.com/felixavco/systema-facturacion#readme",
+  "homepage": "https://github.com/felixavco/doc-app#readme",
   "devDependencies": {
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",

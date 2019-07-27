@@ -43,11 +43,9 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       verificationToken: {
-        allowNull: false,
         type: Sequelize.STRING
       },
       expVerificationToken: {
-        allowNull: false,
         type: Sequelize.DATE
       }
     });

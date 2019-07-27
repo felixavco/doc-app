@@ -3,9 +3,9 @@
 let users = [];
 let acct = 1;
 
-for(let i = 1; i <= 50; i++) {
+for (let i = 1; i <= 1500; i++) {
 
-  if(i % 5 === 0) {
+  if (i % 3 === 0) {
     acct++
   }
 
@@ -15,21 +15,21 @@ for(let i = 1; i <= 50; i++) {
     middleName: `User_middleName_${acct}_${i}`,
     lastName: `User_Surname_${acct}_${i}`,
     email: `user_acct_${acct}_${i}@mail${acct}.com`,
-    password: 'abc321', 
+    password: 'abc321',
     createdAt: new Date(),
     updatedAt: new Date(),
     accountId: acct
-  })
+  });
 }
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-  
-      return queryInterface.bulkInsert('users', users, {});
-    
+
+    return queryInterface.bulkInsert('users', users, {});
+
   },
 
   down: (queryInterface, Sequelize) => {
-      return queryInterface.bulkDelete('users', null, {});
+    return queryInterface.bulkDelete('users', null, {});
   }
 };

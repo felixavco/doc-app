@@ -3,9 +3,11 @@ import morgan from 'morgan';
 import cors from 'cors';
 import passport from 'passport';
 import passportJWT from './passportJWT';
+import path from 'path';
+
 
 //* Routes
-import AccountRoutes from '../routes/api/Account';
+import ClinicRoutes from '../routes/api/Clinic';
 import UserRoutes from '../routes/api/User';
 
 class Server {
@@ -22,12 +24,19 @@ class Server {
         this.server.use(express.urlencoded({ extended: false }));
         this.server.use(express.json());
         this.server.use(passport.initialize());
-		passportJWT(passport);
+        passportJWT(passport);
+        this.server.use(express.static(path.join(__dirname, '../public')));
+        this.server.set('views', path.join(__dirname, '../views'))
+        this.server.set('view engine', 'ejs');
     }
 
     routes() {
-        this.server.use('/api/account', AccountRoutes);
-        this.server.use('/api/user/', UserRoutes);
+        this.server.use('/api/clinic', ClinicRoutes);
+        this.server.use('/api/user', UserRoutes);
+        this.server.use('/', (req, res) => {
+            const title = "Doc-App";
+            res.render('index', { title });
+        })
     }
 
     start() {

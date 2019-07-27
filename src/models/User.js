@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     expVerificationToken: DataTypes.DATE,
   }, {});
 
-  User.associate = function(models) {
-    User.belongsTo(models.Account, { foreignKey: 'accountId' });
+  User.associate = function({Clinic}) {
+    User.belongsTo(Clinic, { foreignKey: 'accountId' });
   };
   return User;
 };

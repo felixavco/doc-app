@@ -1,13 +1,13 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
 
-  const Account = sequelize.define('Account', {
+  const Clinic = sequelize.define('Clinic', {
     name: DataTypes.STRING, 
     domain: DataTypes.STRING
   }, {});
 
-  Account.associate = function ({User}) {
-    Account.hasMany(User);
+  Clinic.associate = function ({User}) {
+    Clinic.hasMany(User);
   };
-  return Account;
+  return Clinic;
 };
