@@ -1,6 +1,8 @@
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import passport from 'passport';
+import passportJWT from './passportJWT';
 
 //* Routes
 import AccountRoutes from '../routes/api/Account';
@@ -19,11 +21,13 @@ class Server {
         this.server.use(cors());
         this.server.use(express.urlencoded({ extended: false }));
         this.server.use(express.json());
+        this.server.use(passport.initialize());
+		passportJWT(passport);
     }
 
     routes() {
         this.server.use('/api/account', AccountRoutes);
-        this.server.use('/api/user/register', UserRoutes);
+        this.server.use('/api/user/', UserRoutes);
     }
 
     start() {
