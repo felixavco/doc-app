@@ -38,11 +38,11 @@ class UserController {
       //* Set expiration to verification token
       newClinic.exp_verification_token = Date.now() + 3600000; //* Token will expire in 1 Hour
 
-      //* If the domain is available creates a new clinic.  
+      //* If the domain is available creates a new clinic.
       clinic = await Clinic.create(newClinic);
 
       //***** Creating User *****/
-      
+
       //* Create the relation between the user and the clinic through the clinic Id.
       const clinic_id = clinic.dataValues.id
       newUser.clinic_id = clinic_id;
@@ -50,7 +50,7 @@ class UserController {
       newUser.user_type = "DOCTOR";
       newUser.role = "SUPER_ADMIN";
 
-      //* Encrypt User password 
+      //* Encrypt User password
       bcrypt.genSalt(12, (err, salt) => {
         if (err) throw err;
         bcrypt.hash(newUser.password, salt, (err, hash) => {
@@ -60,7 +60,7 @@ class UserController {
             .then(user => {
               const { id, first_name, last_name, clinic_id } = user.dataValues;
 
-              //* Send Verification email 
+              //* Send Verification email
               const msgData = {
                 from: `Doc-App <no-reply-verification@${DOMAIN}>`,
                 to: user.dataValues.email,
@@ -69,7 +69,7 @@ class UserController {
 
               const data = {
                 name: first_name + " " + last_name,
-                token: newUser.verification_token
+                token: newClinic.verification_token
               }
 
               Mailer.mailGun(msgData, verificationEmail(data));
@@ -109,6 +109,7 @@ class UserController {
    */
   login = () => async (req, res) => {
     try {
+        const { user_name, domain, password } = req.body
 
     } catch (error) {
       console.error("_catch: " + error);
