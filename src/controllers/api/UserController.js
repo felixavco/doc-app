@@ -18,9 +18,9 @@ class UserController {
    */
   register = () => async (req, res) => {
     try {
-      const { name, domain, firstName, lastName, email, password } = req.body;
-      const newClinic = { name, domain };
-      const newUser = { firstName, lastName, email, password };
+      const { name, domain, account_type, first_name, last_name, email, password, userName } = req.body;
+      const newClinic = { name, domain, account_type };
+      const newUser = { first_name, last_name, userName, email, password };
 
       //* Checks if the domain is already taken
       let clinic = await Clinic.findOne({ where: { domain } });
@@ -37,13 +37,16 @@ class UserController {
       clinic = await Clinic.create(newClinic);
 
       //* Create the relation between the user and the clinic through the clinic Id.
-      const clinicId = clinic.dataValues.id
-      newUser.clinicId = clinicId;
+      const clinic_id = clinic.dataValues.id
+      newUser.clinic_id = clinic_id;
+      //* Assign user_type DOCTOR and role SUPER_ADMIN by default;
+      newUser.user_type = "DOCTOR";
+      newUser.role = "SUPER_ADMIN";
 
       //* Create a random verification token
-      newUser.verificationToken = await crypto.randomBytes(32).toString('hex');
+      newClinic.verification_token = await crypto.randomBytes(32).toString('hex');
       //* Set expiration to verification token
-      newUser.expVerificationToken = Date.now() + 3600000; //* Token will expire in 1 Hour
+      newClinic.exp_verification_token = Date.now() + 3600000; //* Token will expire in 1 Hour
 
       //* Encrypt User password 
       bcrypt.genSalt(12, (err, salt) => {
@@ -53,7 +56,7 @@ class UserController {
           newUser.password = hash;
           User.create(newUser)
             .then(user => {
-              const { id, firstName, lastName, clinicId } = user.dataValues;
+              const { id, first_name, last_name, clinic_id } = user.dataValues;
 
               //* Send Verification email 
               const msgData = {
@@ -63,8 +66,8 @@ class UserController {
               }
 
               const data = {
-                name: firstName + " " + lastName,
-                token: newUser.verificationToken
+                name: first_name + " " + last_name,
+                token: newUser.verification_token
               }
 
               Mailer.mailGun(msgData, verificationEmail(data));
@@ -72,14 +75,15 @@ class UserController {
               //* Prepare JWT Payload
               const payload = {
                 id,
-                firstName,
+                first_name,
                 middleName: user.dataValues.middleName || "",
-                lastName,
-                lastName2: user.dataValues.lastName2 || "",
-                clinicId
+                last_name,
+                last_name2: user.dataValues.last_name2 || "",
+                clinic_id
               }
               //*Send JWT token
               jwt.sign(payload, SECRET, { expiresIn: '1d' }, (err, token) => {
+                if(err) throw err;
                 res.status(201).json({
                   success: true,
                   token: `Bearer ${token}`

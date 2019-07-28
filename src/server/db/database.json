@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": "root",
-    "database": "sif",
+    "database": "doc_app",
     "host": "localhost",
     "dialect": "mysql",
     "operatorsAliases": false
