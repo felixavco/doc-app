@@ -33,20 +33,22 @@ class UserController {
         return res.status(409).json({ message: `El correo '${email}' ya esta en uso, selecione uno diferente.` })
       }
 
+      //* Create a random verification token
+      newClinic.verification_token = await crypto.randomBytes(32).toString('hex');
+      //* Set expiration to verification token
+      newClinic.exp_verification_token = Date.now() + 3600000; //* Token will expire in 1 Hour
+
       //* If the domain is available creates a new clinic.  
       clinic = await Clinic.create(newClinic);
 
+      //***** Creating User *****/
+      
       //* Create the relation between the user and the clinic through the clinic Id.
       const clinic_id = clinic.dataValues.id
       newUser.clinic_id = clinic_id;
       //* Assign user_type DOCTOR and role SUPER_ADMIN by default;
       newUser.user_type = "DOCTOR";
       newUser.role = "SUPER_ADMIN";
-
-      //* Create a random verification token
-      newClinic.verification_token = await crypto.randomBytes(32).toString('hex');
-      //* Set expiration to verification token
-      newClinic.exp_verification_token = Date.now() + 3600000; //* Token will expire in 1 Hour
 
       //* Encrypt User password 
       bcrypt.genSalt(12, (err, salt) => {
@@ -83,7 +85,7 @@ class UserController {
               }
               //*Send JWT token
               jwt.sign(payload, SECRET, { expiresIn: '1d' }, (err, token) => {
-                if(err) throw err;
+                if (err) throw err;
                 res.status(201).json({
                   success: true,
                   token: `Bearer ${token}`
