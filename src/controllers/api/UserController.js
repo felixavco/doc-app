@@ -3,8 +3,10 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import db from '../../models';
 import Mailer from '../../server/mailer/Mailer';
+import verificationEmail from '../../server/mailer/templates/verificationEmail';
 const { Clinic, User } = db;
-const { SECRET } = process.env;
+const { SECRET, DOMAIN } = process.env;
+
 
 class UserController {
 
@@ -25,6 +27,11 @@ class UserController {
       if (clinic) {
         return res.status(409).json({ message: `El dominio '${domain}' ya esta en uso por otra cuenta, selecione uno diferente.` })
       }
+      //* Checks if the email is already in use
+      let user = await User.findOne({ where: { email } });
+      if (user) {
+        return res.status(409).json({ message: `El correo '${email}' ya esta en uso, selecione uno diferente.` })
+      }
 
       //* If the domain is available creates a new clinic.  
       clinic = await Clinic.create(newClinic);
@@ -32,12 +39,6 @@ class UserController {
       //* Create the relation between the user and the clinic through the clinic Id.
       const clinicId = clinic.dataValues.id
       newUser.clinicId = clinicId;
-
-      //* Checks if the email is already in use
-      let user = await User.findOne({ where: { email } });
-      if (user) {
-        return res.status(409).json({ message: `El correo '${email}' ya esta en uso, selecione uno diferente.` })
-      }
 
       //* Create a random verification token
       newUser.verificationToken = await crypto.randomBytes(32).toString('hex');
@@ -54,7 +55,19 @@ class UserController {
             .then(user => {
               const { id, firstName, lastName, clinicId } = user.dataValues;
 
-              //TODO MAILER 
+              //* Send Verification email 
+              const msgData = {
+                from: `Doc-App <no-reply-verification@${DOMAIN}>`,
+                to: user.dataValues.email,
+                subject: "Welcome to Doc-App, Please Verify Your Domain"
+              }
+
+              const data = {
+                name: firstName + " " + lastName,
+                token: newUser.verificationToken
+              }
+
+              Mailer.mailGun(msgData, verificationEmail(data));
 
               //* Prepare JWT Payload
               const payload = {
@@ -90,28 +103,11 @@ class UserController {
    */
   login = () => async (req, res) => {
     try {
-      
+
     } catch (error) {
       console.error("_catch: " + error);
       res.status(500).json({ ERROR: error.toString() });
     }
-  }
-
-  mailTester = () => (req, res) => {
-
-    const mailer = new Mailer();
-
-    const msgData = {
-      from: "tica.email.team@gmail.com", 
-      to: "felixavco@gmail.com",
-      bcc: "hey@felixavelar.com", 
-      replyTo: "tica.mail.team@gmail.com", 
-      subject: "Hello this is a test from Mailer"
-    }
-
-    mailer.send(msgData, "<h1>Hello this a test message</h1>")
-
-    res.send("Testing Mailer......");
   }
 
 }

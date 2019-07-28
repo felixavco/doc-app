@@ -1,43 +1,39 @@
 import nodeMailer from 'nodemailer';
-const { SMTP_USER, SMTP_SERVER, SMTP_PWD, SMTP_PORT } = process.env;
+import MailGun from 'mailgun-js';
+const { SMTP_USER, SMTP_SERVER, SMTP_PWD, SMTP_PORT, MG_API_KEY, DOMAIN } = process.env;
 
 class Mailer {
+    /**
+     * @param data {from, to, bcc, replyTo, subject, text }
+     */
+    static send = async (data, template) => {
+        try {
+            const transporter = nodeMailer.createTransport({
+                host: SMTP_SERVER,
+                port: SMTP_PORT,
+                secure: SMTP_PORT === 465 ? true : false,
+                auth: { user: SMTP_USER, pass: SMTP_PWD }
+            });
 
-    smtpConn() {
-        const transporter = nodeMailer.createTransport({
-            host: SMTP_SERVER,
-            port: SMTP_PORT,
-            secure: SMTP_PORT === 465 ? true : false,
-            auth: {
-                user: SMTP_USER,
-                pass: SMTP_PWD
+            const message = {
+                from: data.from,
+                to: data.to,
+                bcc: data.bcc || "",
+                replyTo: data.replyTo || "",
+                subject: data.subject,
+                text: data.text || "",
+                html: template
             }
-        });
-
-        return transporter;
+            await transporter.sendMail(message);
+        } catch (error) {
+            throw error
+        }
     }
 
-    /**
-     * @param messageData {from, to, bcc, replyTo, subject, text }
-     */
-    send(messageData, template) {
-
-        const message = {
-            from: messageData.from,
-            to: messageData.to,
-            bcc: messageData.bcc || "",
-            replyTo: messageData.replyTo || "",
-            subject: messageData.subject,
-            text: messageData.text || "",
-            html: template
-        }
-
-        this.smtpConn()
-            .sendMail(message)
-            .then(value => {
-                console.log(value);
-            })
-            .catch(err => console.log("ERROR CATCH " + err));
+    static mailGun = ({ from, to, subject }, template) => {
+        const mailgun = MailGun({ apiKey: MG_API_KEY, domain: DOMAIN });
+        const message = { from, to, subject, html: template }
+        mailgun.messages().send(message);
     }
 }
 
