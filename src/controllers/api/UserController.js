@@ -109,7 +109,29 @@ class UserController {
    */
   login = () => async (req, res) => {
     try {
-        const { user_name, domain, password } = req.body
+        const { user_name, domain, password } = req.body;
+
+        const clinic = await Clinic.findOne({ where: { domain }});
+
+        if(!clinic) {
+           return res.status(404).json({ msg: `La cuenta "${domain}, no existe."`});
+        }
+
+        const { id } = clinic.dataValues;
+
+        const user = await User.findOne({ where: {[Op.or]: [{clinic_id: id}, {user_name}]}});
+
+        if(!user) {
+            return res.status(404).json({ msg: `El usuario "${user_name}@${domain}, no existe."`});
+        }
+
+        const jwtToken = await jwt.sign(payload, SECRET, { expiresIn: '1d' });
+
+        res.json({
+            success: true,
+            token: `Bearer ${jwtToken}`
+        });
+
 
     } catch (error) {
       console.error("_catch: " + error);
