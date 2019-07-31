@@ -18,9 +18,9 @@ class UserController {
    */
   register = () => async (req, res) => {
     try {
-      const { name, domain, account_type, first_name, last_name, email, password, userName } = req.body;
+      const { name, domain, account_type, first_name, last_name, email, password, user_name } = req.body;
       const newClinic = { name, domain, account_type };
-      const newUser = { first_name, last_name, userName, email, password };
+      const newUser = { first_name, last_name, user_name, email, password };
 
       //* Checks if the domain is already taken
       let clinic = await Clinic.findOne({ where: { domain } });
@@ -50,50 +50,54 @@ class UserController {
       newUser.user_type = "DOCTOR";
       newUser.role = "SUPER_ADMIN";
 
-      //* Encrypt User password
-      bcrypt.genSalt(12, (err, salt) => {
-        if (err) throw err;
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
-          if (err) throw err;
-          newUser.password = hash;
-          User.create(newUser)
-            .then(user => {
-              const { id, first_name, last_name, clinic_id } = user.dataValues;
+      //* Encrypt plain password
+      const salt = await bcrypt.genSalt(12);
 
-              //* Send Verification email
-              const msgData = {
-                from: `Doc-App <no-reply-verification@${DOMAIN}>`,
-                to: user.dataValues.email,
-                subject: "Welcome to Doc-App, Please Verify Your Domain"
-              }
+      const hash = await bcrypt.hash(newUser.password, salt);
 
-              const data = {
-                name: first_name + " " + last_name,
-                token: newClinic.verification_token
-              }
+      newUser.password = hash;
 
-              Mailer.mailGun(msgData, verificationEmail(data));
+      //* Insert new user in DB
+      user = await User.create(newUser);
 
-              //* Prepare JWT Payload
-              const payload = {
-                id,
-                first_name,
-                middleName: user.dataValues.middleName || "",
-                last_name,
-                last_name2: user.dataValues.last_name2 || "",
-                clinic_id
-              }
-              //*Send JWT token
-              jwt.sign(payload, SECRET, { expiresIn: '1d' }, (err, token) => {
-                if (err) throw err;
-                res.status(201).json({
-                  success: true,
-                  token: `Bearer ${token}`
-                });
-              });
-            }).catch(err => { throw err });
+      if (user) {
+
+        const { id, first_name, last_name, clinic_id } = user.dataValues;
+
+        //* Send Verification email
+        const msgData = {
+          from: `Doc-App <no-reply-verification@${DOMAIN}>`,
+          to: user.dataValues.email,
+          subject: "Welcome to Doc-App, Please Verify Your Domain"
+        }
+
+        const data = {
+          name: first_name + " " + last_name,
+          token: newClinic.verification_token
+        }
+
+        Mailer.mailGun(msgData, verificationEmail(data));
+
+        //* Prepare JWT Payload
+        const payload = {
+          id,
+          first_name,
+          middleName: user.dataValues.middleName || "",
+          last_name,
+          last_name2: user.dataValues.last_name2 || "",
+          clinic_id
+        }
+
+        const jwtToken = await jwt.sign(payload, SECRET, { expiresIn: '1d' });
+
+        res.status(201).json({
+          success: true,
+          token: `Bearer ${jwtToken}`
         });
-      });
+
+      } else {
+        res.status(503).json({ msg: "Ha ocurrido un error al crear el usuario, vuelva a intentarlo mas tarde." })
+      }
 
     } catch (error) {
       console.error("_catch: " + error);
@@ -109,30 +113,51 @@ class UserController {
    */
   login = () => async (req, res) => {
     try {
-        const { user_name, domain, password } = req.body;
+      const { user_name, domain, password } = req.body;
+      const msg = "El usuario o el password son incorrectos";
 
-        const clinic = await Clinic.findOne({ where: { domain }});
+      //* Check if there is a clinic asociated with the domain
+      const clinic = await Clinic.findOne({ where: { domain } });
 
-        if(!clinic) {
-           return res.status(404).json({ msg: `La cuenta "${domain}, no existe."`});
-        }
+      if (!clinic) {
+        return res.status(404).json({ msg });
+      }
 
-        const { id } = clinic.dataValues;
+      //* Find a user by user_name and clinic Id
+      const { id } = clinic.dataValues;
 
-        const user = await User.findOne({ where: {[Op.or]: [{clinic_id: id}, {user_name}]}});
+      // const user = await User.findOne({ where: { [Op.and]: [{ clinic_id: id }, { user_name }] } });
 
-        if(!user) {
-            return res.status(404).json({ msg: `El usuario "${user_name}@${domain}, no existe."`});
+      const user = await User.findOne({ where: { clinic_id: id, user_name: user_name } });
+
+      if (!user) {
+        return res.status(404).json({ msg });
+      }
+
+      //* Compare Password
+      const isPassword = await bcrypt.compare(password, user.password);
+
+      if (isPassword) {
+        //* If password match, return jwt token 
+        const { id, first_name, last_name, clinic_id } = user.dataValues;
+        const payload = {
+          id,
+          first_name,
+          middleName: user.dataValues.middleName || "",
+          last_name,
+          last_name2: user.dataValues.last_name2 || "",
+          clinic_id
         }
 
         const jwtToken = await jwt.sign(payload, SECRET, { expiresIn: '1d' });
 
         res.json({
-            success: true,
-            token: `Bearer ${jwtToken}`
+          success: true,
+          token: `Bearer ${jwtToken}`
         });
-
-
+      } else {
+        res.status(401).json({ msg });
+      }
     } catch (error) {
       console.error("_catch: " + error);
       res.status(500).json({ ERROR: error.toString() });

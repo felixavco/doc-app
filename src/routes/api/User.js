@@ -11,7 +11,7 @@ class User extends UserController {
 
     routes() {
         this.router.post('/register', this.register());
-        this.router.post('/login', this.register());
+        this.router.post('/login', this.login());
     }
 
 }
