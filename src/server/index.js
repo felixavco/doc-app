@@ -9,6 +9,7 @@ import path from 'path';
 //* Routes
 import ClinicRoutes from '../routes/api/Clinic';
 import UserRoutes from '../routes/api/User';
+import PatientRoutes from '../routes/api/Patient';
 
 class Server {
     constructor(PORT) {
@@ -33,6 +34,7 @@ class Server {
     routes() {
         this.server.use('/api/clinic', ClinicRoutes);
         this.server.use('/api/user', UserRoutes);
+        this.server.use('/api/patient', PatientRoutes);
         this.server.use('/', (req, res) => {
             const title = "Doc-App";
             res.render('index', { title });
