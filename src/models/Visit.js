@@ -7,10 +7,13 @@ module.exports = (sequelize, DataTypes) => {
     weight: DataTypes.DOUBLE,
     diagnose: DataTypes.STRING,
     notes: DataTypes.TEXT,
-    patient_id: DataTypes.INTEGER
+    patient_id: DataTypes.INTEGER,
+    doctor: DataTypes.STRING, 
+    doctor_id: DataTypes.INTEGER,
   }, {});
-  Visit.associate = function({Patient}) {
-    Visit.belongsTo(Patient, { foreignKey: 'patient_id' });
+  Visit.associate = function({ Patient, User }) {
+    Visit.belongsTo(Patient, { foreignKey: 'patient_id', onDelete: 'CASCADE' });
+    Visit.belongsTo(User, { foreignKey: 'doctor_id' });
   };
   return Visit;
 };

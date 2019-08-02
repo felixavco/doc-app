@@ -35,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Clinic.associate = function ({User, Patient}) {
-    Clinic.hasMany(User, { onDelete: 'cascade' });
-    Clinic.hasMany(Patient, { onDelete: 'cascade' });
+    Clinic.hasMany(User);
+    Clinic.hasMany(Patient);
   };
   return Clinic;
 };

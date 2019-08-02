@@ -24,8 +24,8 @@ module.exports = (sequelize, DataTypes) => {
     clinic_id: DataTypes.INTEGER
   }, {});
   Patient.associate = function({Clinic, Visit}) {
-    Patient.belongsTo(Clinic, { foreignKey: 'clinic_id' });
-    Patient.hasMany(Visit, { onDelete: 'cascade' });
+    Patient.belongsTo(Clinic, { foreignKey: 'clinic_id', onDelete: 'CASCADE' });
+    Patient.hasMany(Visit);
   };
   return Patient;
 };

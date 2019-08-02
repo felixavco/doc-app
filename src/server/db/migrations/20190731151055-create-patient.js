@@ -62,7 +62,14 @@ module.exports = {
         type: Sequelize.STRING
       },
       clinic_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER, 
+        allowNull: false, 
+        onDelete: 'CASCADE',
+        references: {
+          model: 'clinics',
+          key: 'id',
+          as: 'clinic_id'
+        }
       },
       createdAt: {
         field: "created_at",

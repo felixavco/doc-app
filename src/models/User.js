@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User.associate = function({Clinic}) {
-    User.belongsTo(Clinic, { foreignKey: 'clinic_id' });
+    User.belongsTo(Clinic, { foreignKey: 'clinic_id', onDelete: 'CASCADE'});
   };
   return User;
 };

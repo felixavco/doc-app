@@ -11,6 +11,7 @@ class Clinic extends ClinicController {
 
     routes() {
         this.router.get('/list', this.getClinics());
+        this.router.delete('/:id', this.delete());
     }
 
 }

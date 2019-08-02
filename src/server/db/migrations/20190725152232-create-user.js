@@ -70,7 +70,13 @@ module.exports = {
       },
       clinic_id: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        onDelete: 'CASCADE',
+        references: {
+          model: 'clinics',
+          key: 'id',
+          as: 'clinic_id'
+        }
       }
     });
   },

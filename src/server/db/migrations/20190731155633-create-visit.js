@@ -27,7 +27,22 @@ module.exports = {
         type: Sequelize.TEXT
       },
       patient_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER, 
+        allowNull: false, 
+        onDelete: 'CASCADE',
+        references: {
+          model: 'patients',
+          key: 'id',
+          as: 'patient_id'
+        }
+      },
+      doctor: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      doctor_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
