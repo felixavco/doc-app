@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import db from '../../models';
 import Mailer from '../../server/mailer/Mailer';
-import verificationEmail from '../../server/mailer/templates/verificationEmail';
+import { verificationEmail, passwordRecovery } from '../../server/mailer/templates/emailTemplates';
 const { Clinic, User } = db;
 const { SECRET, DOMAIN } = process.env;
 
@@ -114,7 +114,6 @@ class UsersController {
 
       //* Check if there is a clinic asociated with the domain
       const clinic = await Clinic.findOne({ where: { domain } });
-
       if (!clinic) {
         return res.status(404).json({ msg });
       }
@@ -197,24 +196,39 @@ class UsersController {
       const { clinic_id } = req.user;
       let { page, limit, orderby, order } = req.query;
 
-      if(parseInt(page) < 0) {
+      page = parseInt(page);
+      if (!page || page < 1) {
         page = 1;
       }
 
-      if(parseInt(limit) < 5) {
+      limit = parseInt(limit);
+      if (!limit || limit < 5) {
         limit = 5
       }
 
-      console.log(req.query);
+      orderby = orderby !== undefined ? order.toLowerCase() : 'id';
+      const options = ['id', 'first_name', 'last_name', 'middle_name', 'last_name2', 'user_name', 'createdAt', 'role']
+
+      if (!options.includes(orderby)) {
+        orderby = 'id'
+      }
+
+      order = order !== undefined ? order.toUpperCase() : 'ASC';
+
+      if (!['ASC', 'DESC'].includes(order)) {
+        order = 'ASC'
+      }
+
+      console.log(page, limit, orderby, order);
 
       //* find users by clinic_id and user_id, exclude sensitive data
       const users = await User.findAndCountAll({
         where: {
           clinic_id
         },
-        limit: parseInt(limit || 5),
-        offset: parseInt(page -1 || 0),
-        order: [[ orderby || 'id', order || 'ASC']],
+        limit: limit,
+        offset: page - 1,
+        order: [[orderby, order]],
         attributes: {
           exclude: ['password', 'recovery_token', 'exp_recovery_token', 'ClinicId']
         }
@@ -273,6 +287,139 @@ class UsersController {
       res.status(500).json({ ERROR: error.toString() });
     }
   }
+
+  /**
+   * @Route '/api/user/:user_id'
+   * @Method PUT
+   * @Access Pivate
+   * @Description update single user 
+   */
+  update = () => async (req, res) => {
+    try {
+      res.json({ msg: "this route is not ready yet...`" })
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
+  }
+
+  /**
+   * @Route '/api/user/change-password'
+   * @Method POST
+   * @Access Pivate
+   * @Description change user password ** user must know confirm the current password
+   */
+  changePassword = () => async (req, res) => {
+    try {
+      let { currentPassword, newPassword } = req.body;
+      const { user_name, clinic_id } = req.user;
+
+      //* Checks if corrent pwd and new pwd are the same
+      if (currentPassword === newPassword) {
+        return res.status(409).json({ msg: "La nueva contraseña no debe ser igual a la actual" });
+      }
+
+      //* Find user by user_name and clinic_id
+      const user = await User.findOne({ where: { user_name, clinic_id } });
+      if (!user) {
+        return res.status(409).json({ msg: "Unauthorized" });
+      }
+
+      //* check if current password matches
+      const isPassword = await bcrypt.compare(currentPassword, user.password);
+      if (!isPassword) {
+        return res.status(409).json({ msg: "Incorrect Password" });
+      }
+
+      //* Encrypt new Password
+      const salt = await bcrypt.genSalt(12);
+      newPassword = await bcrypt.hash(newPassword, salt);
+      //* update new user password 
+      user.password = newPassword
+
+      const isUpdated = await User.update(user.dataValues, { where: { id: user.id } });
+
+      if (!isUpdated[0]) {
+        res.status(503).json({ msg: " Ha ocurrido un error, intentelo mas tarde " });
+      }
+
+      res.json({ msg: "OK" });
+
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
+  }
+
+  /**
+  * @Route '/api/user/reset-password-request'
+  * @Method POST
+  * @Access public
+  * @Description Receives user email address via form, checks if there is a user associated with the email, 
+  *              if so creates and store in DB a token and expiration date, and finally sends an email with the token
+  */
+  resetPasswordRequest = () => async (req, res) => {
+    try {
+      const { user_name, domain } = req.body;
+
+      //* Check if there is a clinic asociated with the domain
+      const clinic = await Clinic.findOne({ where: { domain } });
+      if (!clinic) {
+        return res.status(404).json({ msg: "Verifique que el usuario sea correcto." });
+      }
+
+      //* Find a user by user_name and clinic Id
+      const { id } = clinic;
+      const user = await User.findOne({ where: { clinic_id: id, user_name } });
+
+      if (!user) {
+        return res.status(404).json({ msg: "Verifique que el usuario sea correcto" });
+      }
+
+      //* Assign new Password Recovery Token to the user and expiration
+      user.recovery_token = await crypto.randomBytes(32).toString('hex') + "_prt_" + user.id;
+      user.exp_recovery_token = Date.now() + 3600000; //* Token will expire in 1 Hour
+
+      //* Store updated user in DB
+      const isUpdated = await User.update(user.dataValues, { where: { id: user.id } });
+
+      if (!isUpdated[0]) {
+        return res.status(503).json({ msg: "Se produjo un problema, intentelo mas tarde." });
+      }
+
+      //* Send Password Recovery email
+      const msgData = {
+        from: `Doc-App - PRT <no-reply-prt@${DOMAIN}>`,
+        to: user.email,
+        subject: `Recuperacion de contraseña`
+      }
+
+      const data = {
+        name: user.first_name + " " + user.last_name,
+        token: user.recovery_token
+      }
+
+      Mailer.mailGun(msgData, passwordRecovery(data));
+
+      res.json({ msg: `El codigo de verificacion se envio a ${user.email}, revise su bandeja principal o de spam` });
+
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
+  }
+
+  /**
+  * @Route '/api/user/reset-password/:token'
+  * @Method GET
+  * @Access public
+  * @Description Checks if recovery token is associated with a user, and if has not expired, returns an Object
+  */
+  resetPassword = () => (req, res) => {
+    try {
+
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
+  }
+
 
   /**
    * @Description Returns jwtToken or error 

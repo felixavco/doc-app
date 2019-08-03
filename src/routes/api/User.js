@@ -17,11 +17,28 @@ class User extends UsersController {
     }
 
     routes() {
+        //* GET ROUTES
         this.router.get('/list', this.protectedRoute, this.getList());
+
         this.router.get('/:user_id', this.protectedRoute, this.getOne());
+
+        this.router.get('/reset-password/:token', this.resetPassword());
+
+        //* POST ROUTES
         this.router.post('/create', this.protectedRoute, this.create());
+
+        this.router.post('/reset-password-request', this.resetPasswordRequest());
+
+        this.router.post('/change-password', this.protectedRoute, this.changePassword());
+
         this.router.post('/register', this.register());
+
         this.router.post('/login', this.login());
+
+        //* PUT ROUTES
+        this.router.put('/:user_id', this.protectedRoute, this.update());
+
+        //* DELETE ROUTES
     }
 
 }
