@@ -5,7 +5,6 @@ import passport from 'passport';
 import passportJWT from './passportJWT';
 import path from 'path';
 
-
 //* Routes
 import ClinicRoutes from '../routes/api/Clinic';
 import UserRoutes from '../routes/api/User';

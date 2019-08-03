@@ -2,7 +2,7 @@ import db from '../../models';
 const { Clinic } = db;
 
 
-class ClinicController {
+class ClinicsController {
 
   /**
  * @Route '/api/Clinic/list'
@@ -43,5 +43,5 @@ class ClinicController {
 
 }
 
-export default ClinicController;
+export default ClinicsController;
 

@@ -1,10 +1,17 @@
 import { Router } from 'express';
-import UserController from '../../controllers/api/UserController';
+import passport from 'passport';
 
-class User extends UserController {
+import UsersController from '../../controllers/api/UsersController';
 
+// const authenticate = passport.authenticate('jwt', { session: false });
+
+
+
+class User extends UsersController {
+    
     constructor() {
         super();
+        this.protectedRoute = passport.authenticate('jwt', { session: false });
         this.router = Router();
         this.routes();
     }
@@ -12,6 +19,7 @@ class User extends UserController {
     routes() {
         this.router.post('/register', this.register());
         this.router.post('/login', this.login());
+        this.router.post('/create', this.protectedRoute, this.create());
     }
 
 }

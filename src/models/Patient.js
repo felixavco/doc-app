@@ -22,10 +22,13 @@ module.exports = (sequelize, DataTypes) => {
     state: DataTypes.STRING,
     city: DataTypes.STRING,
     clinic_id: DataTypes.INTEGER
-  }, {});
-  Patient.associate = function({Clinic, Visit}) {
+  }, {
+    underscored: true
+  });
+  Patient.associate = function({Clinic, Visit, Event}) {
     Patient.belongsTo(Clinic, { foreignKey: 'clinic_id', onDelete: 'CASCADE' });
     Patient.hasMany(Visit);
+    Patient.hasMany(Event);
   };
   return Patient;
 };

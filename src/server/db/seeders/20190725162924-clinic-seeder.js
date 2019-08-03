@@ -13,7 +13,6 @@ for(let i = 1; i <= 500; i++) {
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-
       return queryInterface.bulkInsert('clinics', clinics, {});
   },
 

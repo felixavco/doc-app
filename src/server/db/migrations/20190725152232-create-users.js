@@ -28,11 +28,11 @@ module.exports = {
       speciality: {
         type: Sequelize.STRING
       },
-      user_type: {
-        type: Sequelize.STRING
-      },
       role: {
         type: Sequelize.STRING
+      },
+      permission: {
+        type: Sequelize.INTEGER
       },
       email: {
         allowNull: false,

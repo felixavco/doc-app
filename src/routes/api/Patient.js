@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import PatientController from '../../controllers/api/PatientController';
+import PatientsController from '../../controllers/api/PatientsController';
 
-class Patient extends PatientController {
+class Patient extends PatientsController {
 
     constructor() {
         super();

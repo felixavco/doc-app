@@ -9,12 +9,12 @@ module.exports = (sequelize, DataTypes) => {
     last_name2: DataTypes.STRING,
     avatar: DataTypes.STRING,
     speciality: DataTypes.STRING,
-    user_type: DataTypes.STRING, //* DOCTOR, NOURSE, OTHER
-    role: DataTypes.STRING, //* USER, ADMIN, SUPER_ADMIN
+    role: DataTypes.STRING, //* DOCTOR, NOURSE, OTHER
+    permission: DataTypes.INTEGER, //* 1 = USER, 2 = ADMIN, 3 = SUPER_ADMIN
 
     email: DataTypes.STRING,
     phone: DataTypes.STRING, 
-    userName: DataTypes.STRING, 
+    user_name: DataTypes.STRING, 
     password: DataTypes.STRING,
 
     is_active: DataTypes.BOOLEAN,
@@ -26,8 +26,9 @@ module.exports = (sequelize, DataTypes) => {
     underscored: true
   });
 
-  User.associate = function({Clinic}) {
-    User.belongsTo(Clinic, { foreignKey: 'clinic_id', onDelete: 'CASCADE'});
+  User.associate = function({Clinic, Event}) {
+    User.belongsTo(Clinic, { foreignKey: 'clinic_id', onDelete: 'CASCADE' });
+    User.hasMany(Event);
   };
   return User;
 };
