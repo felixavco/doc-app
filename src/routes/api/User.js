@@ -22,7 +22,7 @@ class User extends UsersController {
 
         this.router.get('/:user_id', this.protectedRoute, this.getOne());
 
-        this.router.get('/reset-password/:token', this.resetPassword());
+        this.router.get('/reset-password/:token', this.verificationRecoveryToken());
 
         //* POST ROUTES
         this.router.post('/create', this.protectedRoute, this.create());

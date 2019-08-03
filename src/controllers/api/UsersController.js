@@ -375,7 +375,7 @@ class UsersController {
       }
 
       //* Assign new Password Recovery Token to the user and expiration
-      user.recovery_token = await crypto.randomBytes(32).toString('hex') + "_prt_" + user.id;
+      user.recovery_token = await crypto.randomBytes(32).toString('hex');
       user.exp_recovery_token = Date.now() + 3600000; //* Token will expire in 1 Hour
 
       //* Store updated user in DB
@@ -412,14 +412,42 @@ class UsersController {
   * @Access public
   * @Description Checks if recovery token is associated with a user, and if has not expired, returns an Object
   */
-  resetPassword = () => (req, res) => {
+  verificationRecoveryToken = () => async (req, res) => {
     try {
+
+      const { token } = req.params;
+
+      const invalidMsg = {
+        token_expired: true,
+        msg: "El token es invalido o ha expirado"
+      }
+
+      if (!token) {
+        res.status(401).json(invalidMsg);
+      }
+
+      const user = await User.findOne({ where: { recovery_token: token }});
+
+      //! WORKING ON DATE COMPARATION
+      const d = new Date(user.exp_recovery_token);
+      console.log(d.getUTCMilliseconds());
+      console.log("*************************************")
+      // console.log(user.exp_recovery_token > Date.now());
+      console.log(Date.now());
+
+      // if (!user || user.dataValues.exp_recovery_token > new Date.now()) {
+      //   res.status(401).json(invalidMsg);
+      // }
+
+      res.json({
+        token, 
+        user
+      })
 
     } catch (error) {
       res.status(500).json({ ERROR: error.toString() });
     }
   }
-
 
   /**
    * @Description Returns jwtToken or error 
