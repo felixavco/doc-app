@@ -49,8 +49,8 @@ class UsersController {
       newUser.clinic_id = clinic.dataValues.id
 
       //* Assign user_type DOCTOR and role SUPER_ADMIN by default;
-      newUser.user_type = "DOCTOR";
-      newUser.role = "SUPER_ADMIN";
+      newUser.role = "DOCTOR";
+      newUser.permission = 3;
 
       //* Encrypt plain password
       const salt = await bcrypt.genSalt(12);
@@ -149,6 +149,90 @@ class UsersController {
   }
 
   /**
+   * @Route '/api/user/:user_id'
+   * @Method GET
+   * @Access Pivate
+   * @Description return single user 
+   */
+  getOne = () => async (req, res) => {
+    try {
+      const { user_id } = req.params;
+      const { clinic_id } = req.user;
+
+      //* Checks if user_id is valid
+      if (!user_id || (typeof parseInt(user_id) !== 'number')) {
+        return res.status(404).json({ msg: "No se encontro el usuario!" });
+      }
+
+      //* find user by clinic_id and user_id, exclude sensitive data
+      const user = await User.findOne({
+        where: {
+          clinic_id,
+          id: user_id
+        },
+        attributes: {
+          exclude: ['password', 'recovery_token', 'exp_recovery_token', 'ClinicId']
+        }
+      });
+
+      if (!user) {
+        return res.status(404).json({ msg: "No se encontro el usuario" });
+      }
+
+      res.json(user);
+
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
+  }
+
+  /**
+   * @Route '/api/user/list/?page=1&limit=5&orderby=id&order=asc'
+   * @Method GET
+   * @Access Pivate
+   * @Description return list of users in the clinic **default values: 'page = 1' 'limit = 5', 'orderby = id', 'order = ASC'
+   */
+  getList = () => async (req, res) => {
+    try {
+      const { clinic_id } = req.user;
+      let { page, limit, orderby, order } = req.query;
+
+      if(parseInt(page) < 0) {
+        page = 1;
+      }
+
+      if(parseInt(limit) < 5) {
+        limit = 5
+      }
+
+      console.log(req.query);
+
+      //* find users by clinic_id and user_id, exclude sensitive data
+      const users = await User.findAndCountAll({
+        where: {
+          clinic_id
+        },
+        limit: parseInt(limit || 5),
+        offset: parseInt(page -1 || 0),
+        order: [[ orderby || 'id', order || 'ASC']],
+        attributes: {
+          exclude: ['password', 'recovery_token', 'exp_recovery_token', 'ClinicId']
+        }
+      });
+
+      if (!users) {
+        return res.status(404).json({ msg: "No se encontron los usuarios" });
+      }
+
+      //* Send list of users
+      res.json(users);
+
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
+  }
+
+  /**
    * @Route '/api/user/create'
    * @Method POST
    * @Access private
@@ -157,19 +241,19 @@ class UsersController {
   create = () => async (req, res) => {
     try {
       //*Authenticated User
-      const { clinic_id, role: user_role } = req.user;
+      const { clinic_id, permission } = req.user;
       const newUser = req.body;
       newUser.clinic_id = clinic_id;
 
       //* Only Admins and Super Admins can create new users 
-      if (!["SUPER_ADMIN", "ADMIN"].includes(user_role)) {
+      if (permission < 2) {
         return res.status(401).json({ msg: "Unauthorized" });
       }
 
       //* Checks if the user_name is already in use by another user in the same clinic
-      let user = await User.findOne({ where: { clinic_id, user_name: newUser.user_name }});
-      if(user) {
-        return res.status(409).json({ msg: `El nombre de usuario "${newUser.user_name}" ya esta en uso, selecione uno diferente.`})
+      let user = await User.findOne({ where: { clinic_id, user_name: newUser.user_name } });
+      if (user) {
+        return res.status(409).json({ msg: `El nombre de usuario "${newUser.user_name}" ya esta en uso, selecione uno diferente.` })
       }
 
       //* Encrypt plain password

@@ -17,9 +17,11 @@ class User extends UsersController {
     }
 
     routes() {
+        this.router.get('/list', this.protectedRoute, this.getList());
+        this.router.get('/:user_id', this.protectedRoute, this.getOne());
+        this.router.post('/create', this.protectedRoute, this.create());
         this.router.post('/register', this.register());
         this.router.post('/login', this.login());
-        this.router.post('/create', this.protectedRoute, this.create());
     }
 
 }
