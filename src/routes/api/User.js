@@ -31,7 +31,7 @@ class User extends UsersController {
 
         this.router.post('/register', this.registerValidation(), this.register());
 
-        this.router.post('/login', this.login());
+        this.router.post('/login', this.loginValidation(), this.login());
 
         //* PUT ROUTES
         this.router.put('/:user_id', this.protectedRoute, this.update());
