@@ -135,7 +135,7 @@ class UsersController extends UserValidations {
       const isPassword = await bcrypt.compare(password, user.password);
 
       if (isPassword) {
-        //* If password match, return jwt token 
+        //* If password match, return jwt token
         const response = await this.jwtToken(user.dataValues);
 
         if (!response.success) {
@@ -156,7 +156,7 @@ class UsersController extends UserValidations {
    * @Route '/api/user/:user_id'
    * @Method GET
    * @Access Pivate
-   * @Description return single user 
+   * @Description return single user
    */
   getOne = () => async (req, res) => {
     try {
@@ -264,7 +264,7 @@ class UsersController extends UserValidations {
       const newUser = req.body;
       newUser.clinic_id = clinic_id;
 
-      //* Only Admins and Super Admins can create new users 
+      //* Only Admins and Super Admins can create new users
       if (permission < 2) {
         return res.status(401).json({ msg: "Unauthorized" });
       }
@@ -297,7 +297,7 @@ class UsersController extends UserValidations {
    * @Route '/api/user/:user_id'
    * @Method PUT
    * @Access Pivate
-   * @Description update single user 
+   * @Description update single user
    */
   update = () => async (req, res) => {
     try {
@@ -338,7 +338,7 @@ class UsersController extends UserValidations {
       //* Encrypt new Password
       const salt = await bcrypt.genSalt(12);
       newPassword = await bcrypt.hash(newPassword, salt);
-      //* update new user password 
+      //* update new user password
       user.password = newPassword
 
       const isUpdated = await User.update(user.dataValues, { where: { id: user.id } });
@@ -358,7 +358,7 @@ class UsersController extends UserValidations {
   * @Route '/api/user/reset-password-request'
   * @Method POST
   * @Access public
-  * @Description Receives user email address via form, checks if there is a user associated with the email, 
+  * @Description Receives user email address via form, checks if there is a user associated with the email,
   *              if so creates and store in DB a token and expiration date, and finally sends an email with the token
   */
   resetPasswordRequest = () => async (req, res) => {
@@ -475,12 +475,12 @@ class UsersController extends UserValidations {
       //* Encrypt new Password
       const salt = await bcrypt.genSalt(12);
       user.password = await bcrypt.hash(newPassword, salt);
-      
+
       //* Reset Recovery Token and its expiration
       user.recovery_token = null;
       user.exp_recovery_token = null;
 
-      //* Storing the new password 
+      //* Storing the new password
       const isUpdated = await User.update(user.dataValues, { where: { id: user.id } });
 
       if (!isUpdated[0]) {
@@ -495,7 +495,7 @@ class UsersController extends UserValidations {
   }
 
   /**
-   * @Description Returns jwtToken or error 
+   * @Description Returns jwtToken or error
    */
   jwtToken = async ({ id, first_name, last_name, avatar, user_type, role, is_active, clinic_id }) => {
     try {
@@ -536,3 +536,4 @@ class UsersController extends UserValidations {
 }
 
 export default UsersController;
+

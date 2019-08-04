@@ -3,12 +3,8 @@ import passport from 'passport';
 
 import UsersController from '../../controllers/api/UsersController';
 
-// const authenticate = passport.authenticate('jwt', { session: false });
-
-
-
 class User extends UsersController {
-    
+
     constructor() {
         super();
         this.protectedRoute = passport.authenticate('jwt', { session: false });

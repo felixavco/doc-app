@@ -1,7 +1,7 @@
 class Helpers {
 
     /**
-    * Name: setError 
+    * Name: setError
     * Description: Creates a custom error object, {required fields: message: str, status:num}, {optional: field?: str instructions?: str}
     */
     setResponse(msgSpa, msgEng) {
