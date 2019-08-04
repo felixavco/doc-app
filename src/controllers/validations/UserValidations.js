@@ -49,6 +49,17 @@ class UserValidations extends Helper {
             }
     }
 
+    checkUserName(userName) {
+        if(this.isEmpty(userName)){
+            this.errors.user_name = this.setResponse("Ingrese su nombre de usuario", "Please enter your user name");
+        } else if(!this.isSlug(userName)) {
+            this.errors.user_name = this.setResponse(
+                "El nombre de usuario solo puede contener letras, numeros y guiones, sin espacios",
+                "The user name can only contain letters, numbers and hyphen, no spaces"
+                );
+        }
+    }
+
 
 
     registerValidation = () => (req, res, next) => {
@@ -98,24 +109,15 @@ class UserValidations extends Helper {
 
 
         //* Checks if Password is not empty and set min and max lenght
-        password = password.trim();
-        this.checkPwd(password)
+        this.checkPwd(password.trim())
 
         //* Checks if passwrod2 is not empty and if is equals password
-        password2 = password2.trim();
-        this.comparePwds(password, password2);
+        this.comparePwds(password.trim(), password2.trim());
 
 
         //*Checks if user name is empty and if is valid
-        user_name = user_name.trim();
-        if(this.isEmpty(user_name)){
-            this.errors.user_name = this.setResponse("Ingrese su nombre de usuario", "Please enter your user name");
-        } else if(!this.isSlug(user_name)) {
-            this.errors.user_name = this.setResponse(
-                "El nombre de usuario solo puede contener letras, numeros y guiones, sin espacios",
-                "The user name can only contain letters, numbers and hyphen, no spaces"
-                );
-        }
+        this.checkUserName(user_name.trim());
+
 
         if(!this.isEmpty(this.errors)) {
             return res.status(400).json(this.errors)
@@ -168,6 +170,32 @@ class UserValidations extends Helper {
 
         next();
 
+    }
+
+    createValidation = () => (req, res, next) => {
+
+        let { first_name, middle_name, last_name, last_name2, password, user_name, email } = req.body;
+
+        //* Check if names are not empty and valid
+        this.checkNames(first_name.trim());
+        this.checkEmail(middle_name.trim(), true);
+        this.checkNames(last_name.trim());
+        this.checkNames(last_name2.trim(), true);
+
+        //* Check if password is not empty and valid
+        this.checkPwd(password.trim());
+
+        //* Checks if user name is not empty and valid
+        this.checkUserName(user_name.trim());
+
+        //* Check if email is valid
+        this.checkEmail(email.trim(), true);
+
+        if(!this.isEmpty(this.errors)) {
+            return res.status(400).json(this.errors)
+        }
+
+        next();
     }
 
 

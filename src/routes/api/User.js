@@ -21,7 +21,7 @@ class User extends UsersController {
         this.router.get('/reset-password/:token', this.verificationRecoveryToken());
 
         //* POST ROUTES
-        this.router.post('/create', this.protectedRoute, this.create());
+        this.router.post('/create', this.protectedRoute, this.createValidation(), this.create());
 
         this.router.post('/reset-password-request', this.resetPasswordRequest());
 
