@@ -1,29 +1,32 @@
 class Helpers {
 
     /**
+    * Name: setError 
+    * Description: Creates a custom error object, {required fields: message: str, status:num}, {optional: field?: str instructions?: str}
+    */
+    setResponse(msgSpa, msgEng) {
+        return { msgSpa, msgEng }
+    }
+
+    /**
     * Name: setError (static method)
     * Description: Creates a custom error object, {required fields: message: str, status:num}, {optional: field?: str instructions?: str}
     */
-	static setError(message, number, instructions ) {
-		return { message, status, field, instructions };
-	}
-
+    static setResponse(msgSpa, msgEng) {
+        return { msgSpa, msgEng }
+    }
 
     /**
-	 * Name: getUTCTime (static method)
-	 * Description: Returns date current date in UTC format
-	 */
-    static getUTCTime() {
-        const now = new Date();
-        const UTC_Time = Date.UTC(
-            now.getUTCFullYear(),
-            now.getUTCMonth(),
-            now.getUTCDate(),
-            now.getUTCHours(),
-            now.getUTCMinutes(),
-            now.getUTCSeconds()
+    * Name: is_Empty,
+    * Description: Evaluates if an element is empty, returns boolean value
+    */
+    isEmpty(value) {
+        return (
+            value === undefined ||
+            value === null ||
+            (typeof value === 'object' && Object.keys(value).length === 0) ||
+            (typeof value === 'string' && value.trim().length === 0)
         );
-        return UTC_Time;
     }
 
     /**
@@ -40,12 +43,30 @@ class Helpers {
     }
 
     /**
+    * Name: isDomain,
+    * Description: Evaluates if a string is valid domain name, returns boolean value
+    */
+    isDomain(domain) {
+        const domain_regex = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]/g;
+        return domain_regex.test(domain);
+    }
+
+    /**
     * Name: isDomain (static method),
     * Description: Evaluates if a string is valid domain name, returns boolean value
     */
     static isDomain(domain) {
         const domain_regex = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]/g;
         return domain_regex.test(domain);
+    }
+
+    /**
+    * Name: isSlug,
+    * Description: Evaluates if a string is a valid slug no spaces only alpha numeric and dashes are allowed, returns boolean value
+    */
+    isSlug(url) {
+        const url_regex = /^[a-zA-Z0-9-_]+$/;
+        return url_regex.test(url);
     }
 
     /**
@@ -57,3 +78,5 @@ class Helpers {
         return url_regex.test(url);
     }
 }
+
+export default Helpers;

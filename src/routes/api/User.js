@@ -29,9 +29,11 @@ class User extends UsersController {
 
         this.router.post('/reset-password-request', this.resetPasswordRequest());
 
+        this.router.post('/reset-password', this.resetPassword());
+
         this.router.post('/change-password', this.protectedRoute, this.changePassword());
 
-        this.router.post('/register', this.register());
+        this.router.post('/register', this.registerValidation(), this.register());
 
         this.router.post('/login', this.login());
 

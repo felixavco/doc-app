@@ -5,12 +5,17 @@ import path from 'path';
 import fs from 'fs';
 import db from '../../models';
 import Mailer from '../../server/mailer/Mailer';
+import UserValidations from '../validations/UserValidations';
 import { verificationEmail, passwordRecovery } from '../../server/mailer/templates/emailTemplates';
 const { Clinic, User } = db;
 const { SECRET, DOMAIN } = process.env;
 
 
-class UsersController {
+class UsersController extends UserValidations {
+
+  constructor() {
+    super();
+  }
 
   /**
    * @Route '/api/user/register'
@@ -306,7 +311,7 @@ class UsersController {
    * @Route '/api/user/change-password'
    * @Method POST
    * @Access Pivate
-   * @Description change user password ** user must know confirm the current password
+   * @Description change user password ** user must confirm the current password
    */
   changePassword = () => async (req, res) => {
     try {
@@ -374,6 +379,15 @@ class UsersController {
         return res.status(404).json({ msg: "Verifique que el usuario sea correcto" });
       }
 
+      //Checks if user has a email
+      if (!user.email) {
+        return res
+          .status(404)
+          .json({
+            msg: "El usuario no tiene un correo electronico valido, contacte con su administrador para cambiar la contrasena"
+          });
+      }
+
       //* Assign new Password Recovery Token to the user and expiration
       user.recovery_token = await crypto.randomBytes(32).toString('hex');
       user.exp_recovery_token = Date.now() + 3600000; //* Token will expire in 1 Hour
@@ -417,32 +431,63 @@ class UsersController {
 
       const { token } = req.params;
 
-      const invalidMsg = {
-        token_expired: true,
-        msg: "El token es invalido o ha expirado"
-      }
+      function response(isExpired, isValid) {
+        return { isExpired, isValid }
+      };
 
       if (!token) {
-        res.status(401).json(invalidMsg);
+        res.status(401).json(response(true, false));
       }
 
-      const user = await User.findOne({ where: { recovery_token: token }});
+      const user = await User.findOne({ where: { recovery_token: token } });
 
-      //! WORKING ON DATE COMPARATION
-      const d = new Date(user.exp_recovery_token);
-      console.log(d.getUTCMilliseconds());
-      console.log("*************************************")
-      // console.log(user.exp_recovery_token > Date.now());
-      console.log(Date.now());
+      //* Checks if there is a token or if the token has expired
+      const exp_time = new Date(user.exp_recovery_token);
+      if (!user || exp_time.getTime() < Date.now()) {
+        res.status(401).json(response(true, false));
+      }
 
-      // if (!user || user.dataValues.exp_recovery_token > new Date.now()) {
-      //   res.status(401).json(invalidMsg);
-      // }
+      res.json(response(false, true));
 
-      res.json({
-        token, 
-        user
-      })
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
+  }
+
+  /**
+  * @Route '/api/user/reset-password'
+  * @Method POST
+  * @Access public
+  * @Description Receives the new password from client, and stores the new password
+  */
+  resetPassword = () => async (req, res) => {
+    try {
+      const { token, newPassword } = req.body
+
+      const user = await User.findOne({ where: { recovery_token: token } });
+
+      //* Checks if there is a token or if the token has expired
+      const exp_time = new Date(user.exp_recovery_token);
+      if (!user || exp_time.getTime() < Date.now()) {
+        res.status(401).json({ msg: "El token es invalido o ha expirado" });
+      }
+
+      //* Encrypt new Password
+      const salt = await bcrypt.genSalt(12);
+      user.password = await bcrypt.hash(newPassword, salt);
+      
+      //* Reset Recovery Token and its expiration
+      user.recovery_token = null;
+      user.exp_recovery_token = null;
+
+      //* Storing the new password 
+      const isUpdated = await User.update(user.dataValues, { where: { id: user.id } });
+
+      if (!isUpdated[0]) {
+        res.status(503).json({ msg: " Ha ocurrido un error, intentelo mas tarde " });
+      }
+
+      res.json({ msg: "La contraseña ha sido cambiada con exito" });
 
     } catch (error) {
       res.status(500).json({ ERROR: error.toString() });

@@ -1,8 +1,9 @@
+import ClinicValidations from '../validations/ClinicValidations';
 import db from '../../models';
 const { Clinic } = db;
 
 
-class ClinicsController {
+class ClinicsController extends ClinicValidations {
 
   /**
  * @Route '/api/Clinic/list'
