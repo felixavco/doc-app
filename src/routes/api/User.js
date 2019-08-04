@@ -14,27 +14,68 @@ class User extends UsersController {
 
     routes() {
         //* GET ROUTES
-        this.router.get('/list', this.protectedRoute, this.getList());
+        this.router.get(
+            '/list',
+            this.protectedRoute,
+            this.getList()
+        );
 
-        this.router.get('/:user_id', this.protectedRoute, this.getOne());
+        this.router.get(
+            '/:user_id',
+            this.protectedRoute,
+            this.getOne()
+        );
 
-        this.router.get('/reset-password/:token', this.verificationRecoveryToken());
+        this.router.get(
+            '/reset-password/:token',
+            this.verificationRecoveryToken()
+        );
 
         //* POST ROUTES
-        this.router.post('/create', this.protectedRoute, this.createValidation(), this.create());
+        this.router.post(
+            '/register',
+            this.registerValidation(),
+            this.register()
+        );
 
-        this.router.post('/reset-password-request', this.resetPasswordRequest());
+        this.router.post(
+            '/login',
+            this.loginValidation(),
+            this.login()
+        );
 
-        this.router.post('/reset-password', this.resetPassword());
+        this.router.post(
+            '/create',
+            this.protectedRoute,
+            this.createValidation(),
+            this.create()
+        );
 
-        this.router.post('/change-password', this.protectedRoute, this.changePassword());
+        this.router.post(
+            '/reset-password-request',
+            this.resetPwdReqValidation(),
+            this.resetPasswordRequest()
+        );
 
-        this.router.post('/register', this.registerValidation(), this.register());
+        this.router.post(
+            '/reset-password',
+            this.resetPwdValidation(),
+            this.resetPassword()
+        );
 
-        this.router.post('/login', this.loginValidation(), this.login());
+        this.router.post(
+            '/change-password',
+            this.protectedRoute,
+            this.changePwdValidation(),
+            this.changePassword()
+        );
 
         //* PUT ROUTES
-        this.router.put('/:user_id', this.protectedRoute, this.update());
+        this.router.put(
+            '/:user_id',
+            this.protectedRoute,
+            this.update()
+        );
 
         //* DELETE ROUTES
     }

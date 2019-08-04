@@ -52,7 +52,7 @@ class UserValidations extends Helper {
     checkUserName(userName) {
         if(this.isEmpty(userName)){
             this.errors.user_name = this.setResponse("Ingrese su nombre de usuario", "Please enter your user name");
-        } else if(!this.isSlug(userName)) {
+        } else if(!this.isUserName(userName)) {
             this.errors.user_name = this.setResponse(
                 "El nombre de usuario solo puede contener letras, numeros y guiones, sin espacios",
                 "The user name can only contain letters, numbers and hyphen, no spaces"
@@ -60,8 +60,7 @@ class UserValidations extends Helper {
         }
     }
 
-
-
+    //* POST Validators
     registerValidation = () => (req, res, next) => {
 
         let { name, domain, account_type, first_name, last_name, email, password, password2, user_name } = req.body;
@@ -75,7 +74,7 @@ class UserValidations extends Helper {
         domain = domain.trim();
         if(!this.isEmpty(domain)) {
             //* Checks if is a valid domain
-            if(!this.isDomain(domain)) {
+            if(!validator.isFQDN(domain)) {
                 //* if is not a valid domain, checks if is a valid slug
                 if(!this.isSlug(domain)) {
                     this.errors.domain = this.setResponse(
@@ -138,7 +137,7 @@ class UserValidations extends Helper {
         user_name = user_name.trim();
         if(this.isEmpty(user_name)){
             this.errors.user_name = this.setResponse("Ingrese su nombre de usuario", "Please enter your user name");
-        } else if(!this.isSlug(user_name)) {
+        } else if(!this.isUserName(user_name)) {
             this.errors.user_name = this.setResponse(
                 "El nombre de usuario incorrecto",
                 "Invalid user name"
@@ -148,7 +147,7 @@ class UserValidations extends Helper {
           domain = domain.trim();
         if(!this.isEmpty(domain)) {
             //* Checks if is a valid domain
-            if(!this.isDomain(domain)) {
+            if(!validator.isFQDN(domain)) {
                 //* if is not a valid domain, checks if is a valid slug
                 if(!this.isSlug(domain)) {
                     this.errors.user_name = this.setResponse(
@@ -196,6 +195,80 @@ class UserValidations extends Helper {
         }
 
         next();
+    }
+
+    resetPwdReqValidation = () => (req, res, next) => {
+        const { user_name, domain } = req.body;
+
+           //* Checks if user name is not empty and if is valid
+        user_name = user_name.trim();
+        if(this.isEmpty(user_name)){
+            this.errors.user_name = this.setResponse("Ingrese su nombre de usuario", "Please enter your user name");
+        } else if(!this.isUserName(user_name)) {
+            this.errors.user_name = this.setResponse(
+                "El nombre de usuario incorrecto",
+                "Invalid user name"
+                );
+        }
+
+        domain = domain.trim();
+        if(!this.isEmpty(domain)) {
+            //* Checks if is a valid domain
+            if(!validator.isFQDN(domain)) {
+                //* if is not a valid domain, checks if is a valid slug
+                if(!this.isSlug(domain)) {
+                    this.errors.user_name = this.setResponse( "El nombre de usuario incorrecto", "Invalid user name" )
+                }
+            }
+        } else {
+            this.errors.user_name = this.setResponse("El nombre de usuario incorrecto", "Invalid user name");
+        }
+
+        if(!this.isEmpty(this.errors)) {
+            return res.status(400).json(this.errors)
+        }
+
+        next();
+
+    }
+
+    resetPwdValidation = () => (req, res, next) => {
+        const { token, newPassword, newPassword2 } = req.body;
+
+        //* Checks if token is not empty
+        if(this.isEmpty(token)) {
+            this.errors.token = this.setResponse("El token es requerido", "token is requierd");
+        }
+
+        //* Checks passwords
+        this.checkPwd(newPassword.trim());
+        this.comparePwds(newPassword.trim(), newPassword2.trim());
+
+
+        if(!this.isEmpty(this.errors)) {
+            return res.status(400).json(this.errors)
+        }
+
+        next();
+    }
+
+    changePwdValidation = () => (req, res, next) => {
+        let { currentPassword, newPassword, newPassword2 } = req.body;
+
+        //* Checks if currentPassword is not empty
+        if(this.isEmpty(currentPassword)) {
+            this.errors.currentPassword = this.setResponse("Ingrese su contraseña", "Enter your password");
+        }
+
+        this.checkPwd(newPassword.trim());
+        this.comparePwds(newPassword.trim(), newPassword2.trim());
+
+        if(!this.isEmpty(this.errors)) {
+            return res.status(400).json(this.errors)
+        }
+
+        next();
+
     }
 
 

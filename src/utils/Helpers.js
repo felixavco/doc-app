@@ -61,11 +61,29 @@ class Helpers {
     }
 
     /**
+    * Name: isUserName,
+    * Description: Evaluates if a string is a user name slug no spaces only alpha numeric, hyphen and underscore are allowed
+    */
+    isUserName(userName) {
+        const _regex = /^[a-zA-Z0-9-._]+$/;
+        return _regex.test(userName)
+    }
+
+     /**
+    * Name: isUserName (static method),
+    * Description: Evaluates if a string is a user name slug no spaces only alpha numeric, hyphen and underscore are allowed
+    */
+    static isUserName(userName) {
+        const _regex = /^[a-zA-Z0-9-._]+$/;
+        return _regex.test(userName)
+    }
+
+    /**
     * Name: isSlug,
     * Description: Evaluates if a string is a valid slug no spaces only alpha numeric and dashes are allowed, returns boolean value
     */
     isSlug(url) {
-        const url_regex = /^[a-zA-Z0-9-_]+$/;
+        const url_regex = /^[a-zA-Z0-9-]+$/;
         return url_regex.test(url);
     }
 
