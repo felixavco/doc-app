@@ -224,9 +224,7 @@ class UsersController extends UserValidations {
         order = 'ASC'
       }
 
-      console.log(page, limit, orderby, order);
-
-      //* find users by clinic_id and user_id, exclude sensitive data
+      //* find users by clinic_id , exclude sensitive data
       const users = await User.findAndCountAll({
         where: {
           clinic_id

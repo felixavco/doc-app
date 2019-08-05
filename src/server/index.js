@@ -34,6 +34,7 @@ class Server {
         this.server.use('/api/clinic', ClinicRoutes);
         this.server.use('/api/user', UserRoutes);
         this.server.use('/api/patient', PatientRoutes);
+
         this.server.use('/', (req, res) => {
             const title = "Doc-App";
             res.render('index', { title });
