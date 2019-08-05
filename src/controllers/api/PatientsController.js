@@ -12,22 +12,22 @@ class PatientsController extends PatientValidations {
    */
   getList = () => async (req, res) => {
     try {
-        const { clinic_id } = req.user;
-        let { page, limit, orderby, order } = req.query;
+      const { clinic_id } = req.user;
+      let { page, limit, orderby, order } = req.query;
 
-        page = parseInt(page);
-        if (!page || page < 1) {
-            page = 1;
-        }
+      page = parseInt(page);
+      if (!page || page < 1) {
+        page = 1;
+      }
 
-        limit = parseInt(limit);
-        if (!limit || limit < 10) {
-            limit = 10
-        }
+      limit = parseInt(limit);
+      if (!limit || limit < 10) {
+        limit = 10
+      }
 
 
       orderby = orderby !== undefined ? order.toLowerCase() : 'id';
-      const options = ['id', 'first_name', 'last_name', 'middle_name', 'last_name2', 'createdAt' ]
+      const options = ['id', 'first_name', 'last_name', 'middle_name', 'last_name2', 'createdAt']
 
       if (!options.includes(orderby)) {
         orderby = 'id'
@@ -39,8 +39,8 @@ class PatientsController extends PatientValidations {
         order = 'ASC'
       }
 
-        //* Find patients by clinic_id
-        const patients = await Patient.findAndCountAll({
+      //* Find patients by clinic_id
+      const patients = await Patient.findAndCountAll({
         where: {
           clinic_id
         },
@@ -48,7 +48,7 @@ class PatientsController extends PatientValidations {
         offset: page - 1,
         order: [[orderby, order]],
         attributes: {
-          include: ['id','first_name', 'middle_name', 'last_name', 'last_name2']
+          include: ['id', 'first_name', 'middle_name', 'last_name', 'last_name2']
         }
       });
 
@@ -64,30 +64,30 @@ class PatientsController extends PatientValidations {
     }
   }
 
-    /**
+  /**
    * @Route '/api/patient/:patient_id'
    * @Method GET
    * @Access Pivate
    * @Description return single user
    */
   getOne = () => async (req, res) => {
-      try {
-        const { patient_id } = req.params;
-        const { clinic_id } = req.user;
+    try {
+      const { patient_id } = req.params;
+      const { clinic_id } = req.user;
 
-        //* Checks if patient_id is valid
+      //* Checks if patient_id is valid
       if (!patient_id || (typeof parseInt(patient_id) !== 'number')) {
         return res.status(404).json({ msg: "No se encontro el usuario!" });
       }
 
-       //* find patient by clinic_id and patient_id, exclude sensitive data
+      //* find patient by clinic_id and patient_id, exclude sensitive data
       const patient = await Patient.findOne({
         where: {
           clinic_id,
           id: patient_id
         },
         attributes: {
-          include: ['id','first_name', 'middle_name', 'last_name', 'last_name2']
+          include: ['id', 'first_name', 'middle_name', 'last_name', 'last_name2']
         }
       });
 
@@ -97,10 +97,60 @@ class PatientsController extends PatientValidations {
 
       res.json(patient);
 
-      } catch(error) {
-           res.status(500).json({ ERROR: error.toString() });
-      }
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
   }
+
+  /**
+   * @Route '/api/patient/create'
+   * @Method POST
+   * @Access Pivate
+   * @Description return single user
+   */
+  create = () => (req, res) => {
+    try {
+
+      const { clinic_id } = req.user;
+
+      let { 
+        first_name, 
+        last_name, 
+        middlename, 
+        last_name2, 
+        dob, 
+        blood_type, 
+        alergies, 
+        notes, 
+        email, 
+        primary_phone, 
+        secondary_phone, 
+        insurance_number, 
+        insurance_provider, 
+        address_line, 
+        address_line2, 
+        state, 
+        city 
+      } = req.body;
+
+
+      //* Sanitizind input data
+      first_name = this.capitalize(first_name.trim());
+      middlename = middlename ? this.capitalize(middlename.trim()) : null;
+      last_name = this.capitalize(last_name.trim());
+      last_name2 = last_name2 ? this.capitalize(last_name2.trim()) : null;
+      email = email ? email.trim().toLowerCase() : null;
+
+      const newPatient = {...req.body, first_name, last_name, middle_name, last_name2, email }
+
+      console.log(newPatient);
+
+
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
+  }
+
 
 }
 

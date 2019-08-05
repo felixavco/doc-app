@@ -1,7 +1,7 @@
 import validator from 'validator';
-import Helper from '../../utils/Helpers';
+import Validations from './Validations';
 
-class PatientValidations extends Helper {
+class PatientValidations extends Validations {
     constructor() {
         super();
     }

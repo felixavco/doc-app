@@ -1,4 +1,4 @@
-export const verificationMail = ({ name, token }) => `
+export const verificationEmail = ({ name, token }) => `
 <div style="width: 85%; padding: 16px">
 <h2 style="color: teal; margin: 10px auto 10px auto;">Doc App</h2>
 <hr />

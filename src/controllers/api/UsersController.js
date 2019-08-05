@@ -13,10 +13,6 @@ const { SECRET, DOMAIN } = process.env;
 
 class UsersController extends UserValidations {
 
-  constructor() {
-    super();
-  }
-
   /**
    * @Route '/api/user/register'
    * @Method POST
@@ -25,7 +21,15 @@ class UsersController extends UserValidations {
    */
   register = () => async (req, res) => {
     try {
-      const { name, domain, account_type, first_name, last_name, email, password, user_name } = req.body;
+      let { name, domain, account_type, first_name, last_name, email, password, user_name } = req.body;
+      
+      //* Sanitazing input data
+      first_name = this.capitalize(first_name.trim());
+      last_name = this.capitalize(last_name.trim());
+      domain = domain.trim().toLowerCase();
+      email = email.trim().toLowerCase();
+      user_name = user_name.trim().toLowerCase();
+
       const newClinic = { name, domain, account_type };
       const newUser = { first_name, last_name, email, password, user_name };
 
@@ -114,7 +118,12 @@ class UsersController extends UserValidations {
    */
   login = () => async (req, res) => {
     try {
-      const { user_name, domain, password } = req.body;
+      let { user_name, domain, password } = req.body;
+      
+      //* Sanitazing input data
+      user_name = user_name.trim().toLowerCase();
+      domain = domain.trim().toLowerCase();
+
       const msg = "El usuario o el password son incorrectos";
 
       //* Check if there is a clinic asociated with the domain
@@ -252,7 +261,7 @@ class UsersController extends UserValidations {
   /**
    * @Route '/api/user/create'
    * @Method POST
-   * @Access private
+   * @Access private ** Only Admins and Super Admins can access this route
    * @Description allows admins to create new users
    */
   create = () => async (req, res) => {
@@ -361,7 +370,11 @@ class UsersController extends UserValidations {
   */
   resetPasswordRequest = () => async (req, res) => {
     try {
-      const { user_name, domain } = req.body;
+      let { user_name, domain } = req.body;
+
+      //* Sanitazing input data
+      user_name = user_name.trim().toLowerCase();
+      domain = domain.trim().toLowerCase();
 
       //* Check if there is a clinic asociated with the domain
       const clinic = await Clinic.findOne({ where: { domain } });
