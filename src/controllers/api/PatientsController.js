@@ -108,7 +108,7 @@ class PatientsController extends PatientValidations {
    * @Access Pivate
    * @Description return single user
    */
-  create = () => (req, res) => {
+  create = () => async (req, res) => {
     try {
 
       const { clinic_id } = req.user;
@@ -116,35 +116,36 @@ class PatientsController extends PatientValidations {
       let { 
         first_name, 
         last_name, 
-        middlename, 
+        middle_name, 
         last_name2, 
-        dob, 
-        blood_type, 
-        alergies, 
-        notes, 
-        email, 
-        primary_phone, 
-        secondary_phone, 
-        insurance_number, 
-        insurance_provider, 
-        address_line, 
-        address_line2, 
-        state, 
-        city 
+        email
       } = req.body;
 
 
       //* Sanitizind input data
       first_name = this.capitalize(first_name.trim());
-      middlename = middlename ? this.capitalize(middlename.trim()) : null;
+      middle_name = middle_name ? this.capitalize(middle_name.trim()) : null;
       last_name = this.capitalize(last_name.trim());
       last_name2 = last_name2 ? this.capitalize(last_name2.trim()) : null;
       email = email ? email.trim().toLowerCase() : null;
 
-      const newPatient = {...req.body, first_name, last_name, middle_name, last_name2, email }
+      const newPatient = {
+        ...req.body, 
+        first_name, 
+        last_name, 
+        middle_name, 
+        last_name2, 
+        email, 
+        clinic_id 
+      }
 
-      console.log(newPatient);
+      const patient = await Patient.create(newPatient);
 
+      if(!patient) { 
+        return res.status(503).json({ msg: "No se ha podido crear al paciente, intentelo mas tarde" });
+      }
+
+      res.json({ msg: "OK"});
 
     } catch (error) {
       res.status(500).json({ ERROR: error.toString() });

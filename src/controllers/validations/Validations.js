@@ -69,6 +69,10 @@ class Validations {
         }
     }
 
+    checkPhone(number) {
+        return validator.isNumeric(number);
+    }
+
     capitalize(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }

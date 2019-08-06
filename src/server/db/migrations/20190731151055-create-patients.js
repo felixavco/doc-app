@@ -14,7 +14,7 @@ module.exports = {
       last_name: {
         type: Sequelize.STRING
       },
-      middlename: {
+      middle_name: {
         type: Sequelize.STRING
       },
       last_name2: {
@@ -24,10 +24,10 @@ module.exports = {
       email: {
         type: Sequelize.STRING
       },
-      primary_phone: {
+      phone: {
         type: Sequelize.STRING
       },
-      secondary_phone: {
+      phone2: {
         type: Sequelize.STRING
       },
       
