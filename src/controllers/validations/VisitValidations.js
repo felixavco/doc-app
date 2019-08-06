@@ -24,9 +24,16 @@ class VisitValidation extends Validations {
 
         //Checking for blood_presure, diagnose and notes
 
-        this.isEmpty(blood_presure, "blood_presure", true);
-        this.isEmpty(diagnose, "diagnose");
-        this.isEmpty(notes, "notes");
+        if(this.isEmpty(blood_presure)){
+            this.errors.blood_presure = this.setResponse("Este campo es requerido", "This field is required");
+        }
+
+        if(this.isEmpty(diagnose)){
+             this.errors.diagnose = this.setResponse("Este campo es requerido", "This field is required");
+        }
+        if(this.isEmpty(notes)){
+             this.errors.notes = this.setResponse("Este campo es requerido", "This field is required");
+        }
 
         //*Check numeric values
         this.checkNumericValue(temperature);
