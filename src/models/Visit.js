@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     diagnose: DataTypes.STRING,
     notes: DataTypes.TEXT,
     patient_id: DataTypes.INTEGER,
-    doctor: DataTypes.STRING, 
+    doctor: DataTypes.STRING,
     doctor_id: DataTypes.INTEGER,
   }, {});
   Visit.associate = function({ Patient, User }) {
