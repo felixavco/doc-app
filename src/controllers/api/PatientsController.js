@@ -75,7 +75,7 @@ class PatientsController extends PatientValidations {
       const { patient_id } = req.params;
       const { clinic_id } = req.user;
 
-      //* Checks if patient_id is valid
+      //* Checks if patient_id is valid..
       if (!patient_id || (typeof parseInt(patient_id) !== 'number')) {
         return res.status(404).json({ msg: "No se encontro el usuario!" });
       }
