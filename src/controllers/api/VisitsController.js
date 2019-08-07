@@ -1,19 +1,18 @@
-import VisitValidations from '../validations/VisitValidations';
+import VisitsValidations from '../validations/VisitValidations';
 import db from '../../models';
 const { Visit } = db;
 
-class VisitsController extends VisitsValidations {
+class VisitsController extends VisitValidations {
 
   /**
-   * @Route '/api/patient/list/?page=1&limit=5&orderby=id&order=asc'
+   * @Route '/api/visit/list/?page=1&limit=5&orderby=id&order=asc'
    * @Method GET
    * @Access Pivate
-   * @Description returns the list of visits that belongs to a specific patient
+   * @Description returns the list of visit that belongs to a specific patient
    */
   getList = () => async (req, res) => {
     try {
       const { clinic_id } = req.user;
-      const { patient_id  } = req.params;
       let { page, limit, orderby, order } = req.query;
 
       page = parseInt(page);
@@ -28,7 +27,7 @@ class VisitsController extends VisitsValidations {
 
 
       orderby = orderby !== undefined ? order.toLowerCase() : 'id';
-      const options = ['id', 'first_name', 'last_name', 'middle_name', 'last_name2', 'createdAt']
+      const options = ['id', 'temperature', 'blood_presure', 'height', 'weight', 'diagnose', 'notes']
 
       if (!options.includes(orderby)) {
         orderby = 'id'
@@ -40,8 +39,8 @@ class VisitsController extends VisitsValidations {
         order = 'ASC'
       }
 
-      //* Find patients by clinic_id
-      const patients = await Patient.findAndCountAll({
+      //* Find Visits by clinic_id
+      const visits = await Visit.findAndCountAll({
         where: {
           clinic_id
         },
@@ -49,16 +48,16 @@ class VisitsController extends VisitsValidations {
         offset: page - 1,
         order: [[orderby, order]],
         attributes: {
-          include: ['id', 'first_name', 'middle_name', 'last_name', 'last_name2']
+          include: ['id', 'temperature', 'blood_presure', 'height', 'weight', 'diagnose', 'notes']
         }
       });
 
-      if (!patients) {
-        return res.status(404).json({ msg: "No se encontron pacientes" });
+      if (!visits) {
+        return res.status(404).json({ msg: "No se encontron visitas" });
       }
 
-      //* Send list of users
-      res.json(patients);
+      //* Send list of visits
+      res.json(visits);
 
     } catch (error) {
       res.status(500).json({ ERROR: error.toString() });
@@ -66,37 +65,37 @@ class VisitsController extends VisitsValidations {
   }
 
   /**
-   * @Route '/api/patient/:patient_id'
+   * @Route '/api/visit/:visit_id'
    * @Method GET
    * @Access Pivate
-   * @Description return single user
+   * @Description return single visit
    */
   getOne = () => async (req, res) => {
     try {
-      const { patient_id } = req.params;
+      const { visit_id } = req.params;
       const { clinic_id } = req.user;
 
-      //* Checks if patient_id is valid..
-      if (!patient_id || (typeof parseInt(patient_id) !== 'number')) {
-        return res.status(404).json({ msg: "No se encontro el usuario!" });
+      //* Checks if visit_id is valid
+      if (!visit_id || (typeof parseInt(visit_id) !== 'number')) {
+        return res.status(404).json({ msg: "No se encontro la visita!" });
       }
 
-      //* find patient by clinic_id and patient_id, exclude sensitive data
-      const patient = await Patient.findOne({
+      //* find visit by clinic_id and visit_id, exclude sensitive data
+      const visit = await Visit.findOne({
         where: {
           clinic_id,
-          id: patient_id
+          id: visit_id
         },
         attributes: {
-          include: ['id', 'first_name', 'middle_name', 'last_name', 'last_name2']
+          include: ['id', 'temperature', 'blood_presure', 'height', 'weight', 'diagnose', 'notes']
         }
       });
 
-      if (!patient) {
-        return res.status(404).json({ msg: "No se encontro el paciente" });
+      if (!visit) {
+        return res.status(404).json({ msg: "No se encontro la visita" });
       }
 
-      res.json(patient);
+      res.json(visit);
 
     } catch (error) {
       res.status(500).json({ ERROR: error.toString() });
@@ -104,10 +103,10 @@ class VisitsController extends VisitsValidations {
   }
 
   /**
-   * @Route '/api/patient/create'
+   * @Route '/api/visit/create'
    * @Method POST
    * @Access Pivate
-   * @Description return single user
+   * @Description return single visit
    */
   create = () => async (req, res) => {
     try {
@@ -115,35 +114,37 @@ class VisitsController extends VisitsValidations {
       const { clinic_id } = req.user;
 
       let { 
-        first_name, 
-        last_name, 
-        middle_name, 
-        last_name2, 
-        email
+        temperature,
+        blood_presure,
+        height,
+        weight,
+        diagnose,
+        notes
       } = req.body;
 
 
       //* Sanitizind input data
-      first_name = this.capitalize(first_name.trim());
-      middle_name = middle_name ? this.capitalize(middle_name.trim()) : null;
-      last_name = this.capitalize(last_name.trim());
-      last_name2 = last_name2 ? this.capitalize(last_name2.trim()) : null;
-      email = email ? email.trim().toLowerCase() : null;
+      blood_presure = this.capitalize(blood_presure.trim());
+      diagnose = diagnose ? this.capitalize(diagnose.trim()) : null;
+      notes = this.capitalize(notes.trim());
+      
 
-      const newPatient = {
+      const newVisit = {
         ...req.body, 
-        first_name, 
-        last_name, 
-        middle_name, 
-        last_name2, 
-        email, 
-        clinic_id 
+        temperature,
+        blood_presure,
+        height,
+        weight,
+        diagnose,
+        notes,
+        clinic_id,
+        patient_id
       }
 
-      const patient = await Patient.create(newPatient);
+      const visit = await Visit.create(newVisit);
 
-      if(!patient) { 
-        return res.status(503).json({ msg: "No se ha podido crear al paciente, intentelo mas tarde" });
+      if(!visit) { 
+        return res.status(503).json({ msg: "No se ha podido crear la visita, intentelo mas tarde" });
       }
 
       res.json({ msg: "OK"});
@@ -156,4 +157,4 @@ class VisitsController extends VisitsValidations {
 
 }
 
-export default PatientsController;
+export default VisitsController;
