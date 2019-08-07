@@ -1,4 +1,4 @@
-import VisitsValidations from '../validations/VisitValidations';
+import VisitValidations from '../validations/VisitValidations';
 import db from '../../models';
 const { Visit } = db;
 
@@ -113,7 +113,7 @@ class VisitsController extends VisitValidations {
 
       const { clinic_id } = req.user;
 
-      let { 
+      let {
         temperature,
         blood_presure,
         height,
@@ -127,10 +127,10 @@ class VisitsController extends VisitValidations {
       blood_presure = this.capitalize(blood_presure.trim());
       diagnose = diagnose ? this.capitalize(diagnose.trim()) : null;
       notes = this.capitalize(notes.trim());
-      
+
 
       const newVisit = {
-        ...req.body, 
+        ...req.body,
         temperature,
         blood_presure,
         height,
@@ -143,7 +143,7 @@ class VisitsController extends VisitValidations {
 
       const visit = await Visit.create(newVisit);
 
-      if(!visit) { 
+      if(!visit) {
         return res.status(503).json({ msg: "No se ha podido crear la visita, intentelo mas tarde" });
       }
 

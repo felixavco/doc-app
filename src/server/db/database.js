@@ -1,9 +1,9 @@
 module.exports = {
   development: {
     username: 'root',
-    password: 'root',
+    password: 'Nas1097ad4-5',
     database: 'doc_app',
-    host: 'localhost',
+    host: '165.22.158.67',
     dialect: 'mysql'
   },
   test: {
