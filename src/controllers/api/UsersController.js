@@ -544,6 +544,51 @@ class UsersController extends UserValidations {
 
   }
 
+
+  //!*******************BORRAR 
+  testUsers = () => (req, res) => {
+    this.createTestUsers();
+    res.json({msg:"OK"});
+  }
+
+  async createTestUsers() {
+    let pass = "Hola123++";
+
+    //* Encrypt plain password
+    const salt = await bcrypt.genSalt(12);
+    pass = await bcrypt.hash(pass, salt);
+
+    const newUser1 = {
+      first_name: "Carlos",
+      last_name: "Chiquillo",
+      email: "carlosc@mail.com",
+      role: "DOCTOR",
+      permission: 3,
+      user_name: "carlosc",
+      password: pass,
+      clinic_id: 1
+    }
+
+    const newUser2 = {
+      first_name: "Felix",
+      last_name: "Avelar",
+      email: "favelar@mail.com",
+      role: "DOCTOR",
+      permission: 3,
+      user_name: "favelar",
+      password: pass,
+      clinic_id: 1
+    }
+
+    const user1 = await User.create(newUser1);
+    const user2 = await User.create(newUser2);
+
+    console.log(user1, user2);
+
+  }
+    
+  
+
 }
 
 export default UsersController;

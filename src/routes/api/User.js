@@ -20,11 +20,18 @@ class User extends UsersController {
             this.getList()
         );
 
+        //!BORRAR
+        this.router.get(
+            '/testUsers',
+            this.testUsers()
+        );
+
         this.router.get(
             '/:user_id',
             this.protectedRoute,
             this.getOne()
         );
+
 
         this.router.get(
             '/reset-password/:token',

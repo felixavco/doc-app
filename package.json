@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config ./bin/dev",
+    "reset-db":"sequelize db:drop && sequelize db:create && sequelize db:migrate",
     "clean": "rm -rf dist",
     "copy": "cp -r src/views dist && cp -r src/public dist && cp -r src/uploads dist",
     "build": "mkdir dist && babel src -s -d dist && npm run copy ",
