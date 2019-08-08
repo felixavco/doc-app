@@ -7,6 +7,7 @@ import db from '../../models';
 import Mailer from '../../server/mailer/Mailer';
 import UserValidations from '../validations/UserValidations';
 import { verificationEmail, passwordRecovery } from '../../server/mailer/templates/emailTemplates';
+import { triggerAsyncId } from 'async_hooks';
 const { Clinic, User } = db;
 const { SECRET, DOMAIN } = process.env;
 
@@ -22,7 +23,7 @@ class UsersController extends UserValidations {
   register = () => async (req, res) => {
     try {
       let { name, domain, account_type, first_name, last_name, email, password, user_name } = req.body;
-      
+
       //* Sanitazing input data
       first_name = this.capitalize(first_name.trim());
       last_name = this.capitalize(last_name.trim());
@@ -119,7 +120,7 @@ class UsersController extends UserValidations {
   login = () => async (req, res) => {
     try {
       let { user_name, domain, password } = req.body;
-      
+
       //* Sanitazing input data
       user_name = user_name.trim().toLowerCase();
       domain = domain.trim().toLowerCase();
@@ -506,6 +507,28 @@ class UsersController extends UserValidations {
   }
 
   /**
+   * @Route '/api/user/profile-img'
+   * @Method POST
+   * @Access private
+   * @Description stores or updates user profile picture
+   */
+  profileImg = () => async (req, res) => {
+    try {
+      const { user } = req;
+
+      if (!this.isEmpty(this.errors)) {
+        return res.status(400).json(this.errors)
+      }
+
+      res.json({ msg: "TESTING............" });
+
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
+  }
+
+
+  /**
    * @Description Returns jwtToken or error
    */
   jwtToken = async ({ id, first_name, last_name, avatar, user_type, role, is_active, clinic_id }) => {
@@ -545,49 +568,49 @@ class UsersController extends UserValidations {
   }
 
 
-  //!*******************BORRAR 
-  testUsers = () => (req, res) => {
-    this.createTestUsers();
-    res.json({msg:"OK"});
-  }
+  //!BORRAR *********************
+  // testUsers = () => (req, res) => {
+  //   this.createTestUsers();
+  //   res.json({msg:"OK"});
+  // }
 
-  async createTestUsers() {
-    let pass = "Hola123++";
+  // async createTestUsers() {
+  //   let pass = "Hola123++";
 
-    //* Encrypt plain password
-    const salt = await bcrypt.genSalt(12);
-    pass = await bcrypt.hash(pass, salt);
+  //   //* Encrypt plain password
+  //   const salt = await bcrypt.genSalt(12);
+  //   pass = await bcrypt.hash(pass, salt);
 
-    const newUser1 = {
-      first_name: "Carlos",
-      last_name: "Chiquillo",
-      email: "carlosc@mail.com",
-      role: "DOCTOR",
-      permission: 3,
-      user_name: "carlosc",
-      password: pass,
-      clinic_id: 1
-    }
+  //   const newUser1 = {
+  //     first_name: "Carlos",
+  //     last_name: "Chiquillo",
+  //     email: "carlosc@mail.com",
+  //     role: "DOCTOR",
+  //     permission: 3,
+  //     user_name: "carlosc",
+  //     password: pass,
+  //     clinic_id: 1
+  //   }
 
-    const newUser2 = {
-      first_name: "Felix",
-      last_name: "Avelar",
-      email: "favelar@mail.com",
-      role: "DOCTOR",
-      permission: 3,
-      user_name: "favelar",
-      password: pass,
-      clinic_id: 1
-    }
+  //   const newUser2 = {
+  //     first_name: "Felix",
+  //     last_name: "Avelar",
+  //     email: "favelar@mail.com",
+  //     role: "DOCTOR",
+  //     permission: 3,
+  //     user_name: "favelar",
+  //     password: pass,
+  //     clinic_id: 1
+  //   }
 
-    const user1 = await User.create(newUser1);
-    const user2 = await User.create(newUser2);
+  //   const user1 = await User.create(newUser1);
+  //   const user2 = await User.create(newUser2);
 
-    console.log(user1, user2);
+  //   console.log(user1, user2);
 
-  }
-    
-  
+  // }
+  //!BORRAR ********************* end
+
 
 }
 

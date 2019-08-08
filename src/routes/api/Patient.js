@@ -28,10 +28,26 @@ class Patient extends PatientsController {
 
         //* POST Routes
         this.router.post(
-            '/create',
+            '/',
+            this.protectedRoute,
+            this.createValidation(),
+            this.create()
+        );
+
+        //* PUT Routes
+        this.router.put(
+            '/:patient_id',
+            this.protectedRoute,
+            this.createValidation(),
+            this.create()
+        );
+
+        //* DELETE Route
+        this.router.delete(
+            '/:patient_id',
             this.protectedRoute,
             this.create()
-        )
+        );
     }
 
 }

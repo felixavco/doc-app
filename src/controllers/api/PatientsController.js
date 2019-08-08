@@ -68,7 +68,7 @@ class PatientsController extends PatientValidations {
    * @Route '/api/patient/:patient_id'
    * @Method GET
    * @Access Pivate
-   * @Description return single user
+   * @Description return a single patient
    */
   getOne = () => async (req, res) => {
     try {
@@ -103,21 +103,21 @@ class PatientsController extends PatientValidations {
   }
 
   /**
-   * @Route '/api/patient/create'
+   * @Route '/api/patient/'
    * @Method POST
    * @Access Pivate
-   * @Description return single user
+   * @Description creates a single patient
    */
   create = () => async (req, res) => {
     try {
 
       const { clinic_id } = req.user;
 
-      let { 
-        first_name, 
-        last_name, 
-        middle_name, 
-        last_name2, 
+      let {
+        first_name,
+        last_name,
+        middle_name,
+        last_name2,
         email
       } = req.body;
 
@@ -130,28 +130,103 @@ class PatientsController extends PatientValidations {
       email = email ? email.trim().toLowerCase() : null;
 
       const newPatient = {
-        ...req.body, 
-        first_name, 
-        last_name, 
-        middle_name, 
-        last_name2, 
-        email, 
-        clinic_id 
+        ...req.body,
+        first_name,
+        last_name,
+        middle_name,
+        last_name2,
+        email,
+        clinic_id
       }
 
       const patient = await Patient.create(newPatient);
 
-      if(!patient) { 
-        return res.status(503).json({ msg: "No se ha podido crear al paciente, intentelo mas tarde" });
+      if (!patient) {
+        return res.status(503).json({ msg: "No se ha podido guardar al paciente, intentelo mas tarde" });
       }
 
-      res.json({ msg: "OK"});
+      res.json({ msg: "OK" });
 
     } catch (error) {
       res.status(500).json({ ERROR: error.toString() });
     }
   }
 
+  /**
+  * @Route '/api/patient/:patient_id'
+  * @Method PUT
+  * @Access Pivate
+  * @Description update a single patient
+  */
+  update = () => async (req, res) => {
+    try {
+      const { clinic_id } = req.user;
+      const { patient_id } = req.params;
+
+      let {
+        first_name,
+        last_name,
+        middle_name,
+        last_name2,
+        email
+      } = req.body;
+
+      //* Sanitizind input data
+      first_name = this.capitalize(first_name.trim());
+      middle_name = middle_name ? this.capitalize(middle_name.trim()) : null;
+      last_name = this.capitalize(last_name.trim());
+      last_name2 = last_name2 ? this.capitalize(last_name2.trim()) : null;
+      email = email ? email.trim().toLowerCase() : null;
+
+      const updatedPatient = {
+        ...req.body,
+        first_name,
+        last_name,
+        middle_name,
+        last_name2,
+        email,
+        clinic_id
+      };
+
+      //* Finds patient by its id and by the clinic_id of the auth user.
+      const patient = await Patient.findOne(updatedPatient, {where: { id: patient_id, clinic_id }});
+
+      if (!patient) {
+        return res.status(503).json({ msg: "No se ha podido guardar al paciente, intentelo mas tarde" });
+      }
+
+      res.json({ msg: "OK" });
+
+    } catch (error) {
+      res.status(500).json({ ERROR: error.toString() });
+    }
+  }
+
+  /**
+  * @Route '/api/patient/:patient_id'
+  * @Method DELETE
+  * @Access Pivate
+  * @Description deletes a single patient
+  */
+ delete = () => async (req, res) => {
+   try {
+    const { clinic_id } = req.user;
+    const { patient_id } = req.params;
+
+    const patient = await Patient.findOne({ where: { id: patient_id, clinic_id }});
+
+    if(!patient) {
+      return res.status(404).json({ msg: `El paciente con el id ${patient_id} no existe` });
+    }
+
+    const response = await Patient.destroy({ where: { id: patient.id }});
+
+    res.json({ msg: response });
+
+   } catch (error) {
+    res.status(500).json({ ERROR: error.toString() });
+   }
+ }
 
 }
 

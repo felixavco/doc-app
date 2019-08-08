@@ -8,6 +8,9 @@ class UserValidations extends Validations {
 
         let { name, domain, account_type, first_name, last_name, email, password, password2, user_name } = req.body;
 
+        password = password.trim(); 
+        password2 = password2.trim(); 
+
         //* Checks if clinic Name is Empty
         if (this.isEmpty(name)) {
             this.errors.name = this.setResponse("Este campo es requerido", "This field is required");
