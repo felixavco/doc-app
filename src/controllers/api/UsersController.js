@@ -7,7 +7,6 @@ import db from '../../models';
 import Mailer from '../../server/mailer/Mailer';
 import UserValidations from '../validations/UserValidations';
 import { verificationEmail, passwordRecovery } from '../../server/mailer/templates/emailTemplates';
-import { triggerAsyncId } from 'async_hooks';
 const { Clinic, User } = db;
 const { SECRET, DOMAIN } = process.env;
 
