@@ -26,23 +26,16 @@ class Server {
         this.server.use(passport.initialize());
         passportJWT(passport);
         this.server.use(express.static(path.join(__dirname, '../public')));
-        this.server.set('views', path.join(__dirname, '../views'))
-        this.server.set('view engine', 'ejs');
     }
 
     routes() {
         this.server.use('/api/clinic', ClinicRoutes);
         this.server.use('/api/user', UserRoutes);
         this.server.use('/api/patient', PatientRoutes);
-
-        this.server.use('/', (req, res) => {
-            const title = "Doc-App";
-            res.render('index', { title });
-        })
     }
 
     start() {
-        this.server.listen(this.PORT, () => console.log('Server started on port ' + this.PORT));
+        this.server.listen(this.PORT, () => console.log('> Server started on port ' + this.PORT));
     }
 
 

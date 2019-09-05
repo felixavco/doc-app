@@ -7,9 +7,10 @@ import db from '../../models';
 import Mailer from '../../server/mailer/Mailer';
 import UserValidations from '../validations/UserValidations';
 import { verificationEmail, passwordRecovery } from '../../server/mailer/templates/emailTemplates';
-import { triggerAsyncId } from 'async_hooks';
 const { Clinic, User } = db;
 const { SECRET, DOMAIN } = process.env;
+import multer from 'multer';
+
 
 
 class UsersController extends UserValidations {
@@ -514,7 +515,45 @@ class UsersController extends UserValidations {
    */
   profileImg = () => async (req, res) => {
     try {
-      const { user } = req;
+      // const { user } = req;
+
+      const storage = multer.diskStorage({
+        destination: (req, file, cb) => {
+          let path;
+          process.env.NODE_ENV === 'production' ? path = 'uploads' : path = 'src/uploads';
+          cb(null, `${path}/${req.user.clinic_id}/avatars`)
+        },
+        filename: (req, file, cb) => {
+          cb(null, `u_${req.user.id}_${file.originalname}`);
+        }
+      });
+
+      const fileFilter = (req, file, cb) => {
+        try {
+          const validExts = ['image/png', 'image/jpg', 'image/jpeg'];
+          if (validExts.includes(file.mimetype)) {
+            cb(null, true);
+          } else {
+            cb(null, false);
+            throw new Error("invalid mimetype");
+          }
+        } catch (error) {
+          console.log(error.toString());
+          this.errors.avatar = this.setResponse(
+            "Solamente las extensiones 'jpg','jpeg','png', son validas",
+            "Only file extensions 'jpg','jpeg','png', are valid"
+          )
+        }
+
+      }
+
+
+      console.log("STORAGE", storage);
+      console.log("FILE FILTER", fileFilter);
+
+
+      multer({ storage, fileFilter }).single('avatar');
+
 
       if (!this.isEmpty(this.errors)) {
         return res.status(400).json(this.errors)
@@ -569,46 +608,46 @@ class UsersController extends UserValidations {
 
 
   //!BORRAR *********************
-  // testUsers = () => (req, res) => {
-  //   this.createTestUsers();
-  //   res.json({msg:"OK"});
-  // }
+  testUsers = () => (req, res) => {
+    this.createTestUsers();
+    res.json({ msg: "OK" });
+  }
 
-  // async createTestUsers() {
-  //   let pass = "Hola123++";
+  async createTestUsers() {
+    let pass = "Hola123++";
 
-  //   //* Encrypt plain password
-  //   const salt = await bcrypt.genSalt(12);
-  //   pass = await bcrypt.hash(pass, salt);
+    //   //* Encrypt plain password
+    const salt = await bcrypt.genSalt(12);
+    pass = await bcrypt.hash(pass, salt);
 
-  //   const newUser1 = {
-  //     first_name: "Carlos",
-  //     last_name: "Chiquillo",
-  //     email: "carlosc@mail.com",
-  //     role: "DOCTOR",
-  //     permission: 3,
-  //     user_name: "carlosc",
-  //     password: pass,
-  //     clinic_id: 1
-  //   }
+    const newUser1 = {
+      first_name: "Carlos",
+      last_name: "Chiquillo",
+      email: "carlosc@mail.com",
+      role: "DOCTOR",
+      permission: 3,
+      user_name: "carlosc",
+      password: pass,
+      clinic_id: 1
+    }
 
-  //   const newUser2 = {
-  //     first_name: "Felix",
-  //     last_name: "Avelar",
-  //     email: "favelar@mail.com",
-  //     role: "DOCTOR",
-  //     permission: 3,
-  //     user_name: "favelar",
-  //     password: pass,
-  //     clinic_id: 1
-  //   }
+    const newUser2 = {
+      first_name: "Felix",
+      last_name: "Avelar",
+      email: "favelar@mail.com",
+      role: "DOCTOR",
+      permission: 3,
+      user_name: "favelar",
+      password: pass,
+      clinic_id: 1
+    }
 
-  //   const user1 = await User.create(newUser1);
-  //   const user2 = await User.create(newUser2);
+    const user1 = await User.create(newUser1);
+    const user2 = await User.create(newUser2);
 
-  //   console.log(user1, user2);
+    console.log(user1, user2);
 
-  // }
+  }
   //!BORRAR ********************* end
 
 

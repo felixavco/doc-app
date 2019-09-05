@@ -1,57 +1,57 @@
 import { Router } from 'express';
 import passport from 'passport';
-import multer from 'multer';
+// import multer from 'multer';
 
 import UsersController from '../../controllers/api/UsersController';
 
 class User extends UsersController {
 
-    storage;
-    fileFilter;
+    // storage;
+    // fileFilter;
 
     constructor() {
         super();
         this.protectedRoute = passport.authenticate('jwt', { session: false });
         this.router = Router();
-        this.multerStorage();
-        this.multerFileFilter();
+        // this.multerStorage();
+        // this.multerFileFilter();
         this.routes();
     }
 
     //* Multer Storage Configuration
-    multerStorage() {
-        this.storage = multer.diskStorage({
-            destination: (req, file, cb) => {
-                let path;
-                process.env.NODE_ENV === 'production' ? path = 'uploads' : path = 'src/uploads';
-                cb(null, `${path}/${req.user.clinic_id}/avatars`)
-            },
-            filename: (req, file, cb) => {
-                cb(null, `u_${req.user.id}_${file.originalname}`);
-            }
-        });
-    }
+    // multerStorage() {
+    //     this.storage = multer.diskStorage({
+    //         destination: (req, file, cb) => {
+    //             let path;
+    //             process.env.NODE_ENV === 'production' ? path = 'uploads' : path = 'src/uploads';
+    //             cb(null, `${path}/${req.user.clinic_id}/avatars`)
+    //         },
+    //         filename: (req, file, cb) => {
+    //             cb(null, `u_${req.user.id}_${file.originalname}`);
+    //         }
+    //     });
+    // }
 
-    multerFileFilter() {
-        this.fileFilter = (req, file, cb) => {
-            try {
-                const validExts = ['image/png', 'image/jpg', 'image/jpeg'];
-                if (validExts.includes(file.mimetype)) {
-                    cb(null, true);
-                } else {
-                    cb(null, false);
-                    throw new Error("invalid mimetype");
-                }
-            } catch (error) {
-                console.log(error.toString());
-                this.errors.avatar = this.setResponse(
-                    "Solamente las extensiones 'jpg','jpeg','png', son validas",
-                    "Only file extensions 'jpg','jpeg','png', are valid"
-                )
-            }
+    // multerFileFilter() {
+    //     this.fileFilter = (req, file, cb) => {
+    //         try {
+    //             const validExts = ['image/png', 'image/jpg', 'image/jpeg'];
+    //             if (validExts.includes(file.mimetype)) {
+    //                 cb(null, true);
+    //             } else {
+    //                 cb(null, false);
+    //                 throw new Error("invalid mimetype");
+    //             }
+    //         } catch (error) {
+    //             console.log(error.toString());
+    //             this.errors.avatar = this.setResponse(
+    //                 "Solamente las extensiones 'jpg','jpeg','png', son validas",
+    //                 "Only file extensions 'jpg','jpeg','png', are valid"
+    //             )
+    //         }
 
-        }
-    }
+    //     }
+    // }
 
     routes() {
         //* GET ROUTES
@@ -62,10 +62,10 @@ class User extends UsersController {
         );
 
         //!BORRAR
-        // this.router.get(
-        //     '/testUsers',
-        //     this.testUsers()
-        // );
+        this.router.get(
+            '/testUsers',
+            this.testUsers()
+        );
         //!BORRAR
 
         this.router.get(
@@ -122,10 +122,6 @@ class User extends UsersController {
         this.router.post(
             '/profile-img',
             this.protectedRoute,
-            multer({
-                storage: this.storage,
-                fileFilter: this.fileFilter
-            }).single('avatar'),
             this.profileImg()
         )
 

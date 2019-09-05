@@ -1,5 +1,6 @@
 import validator from 'validator';
 
+
 class Validations {
 
     //* names min and max
@@ -55,8 +56,8 @@ class Validations {
     checkUserName(userName) {
         if (this.isEmpty(userName)) {
             this.errors.user_name = this.setResponse("Ingrese su nombre de usuario", "Please enter your user name");
-        } else if(!validator.isLength(userName, { min: this.name_min, max: this.name_max })) {
-            this.errors.user_name = 
+        } else if (!validator.isLength(userName, { min: this.name_min, max: this.name_max })) {
+            this.errors.user_name =
                 this.setResponse(
                     `El nombre de usuario debe tener entre ${this.name_min} a ${this.name_max} caracteres`,
                     `The user name must have between ${this.name_min} to ${this.name_max} characters`
