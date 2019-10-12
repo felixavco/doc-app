@@ -13,13 +13,9 @@ class UserValidations extends Validations {
 
         //* Checks if clinic Name is Empty
         if (this.isEmpty(name)) {
-            this.errors.name = this.setResponse("Este campo es requerido", "This field is required");
+            this.errors.name = "Este campo es requerido";
         } else if (!validator.isLength(name, {min: this.clinic_name_min, max: this.clinic_name_max })) {
-            this.errors.name = 
-                this.setResponse(
-                    `El nombre de su clinica debe de tener entre ${this.clinic_name_min} a ${this.clinic_name_max} caracteres`,
-                    `Clinic's name must have between ${this.clinic_name_min} and ${this.clinic_name_max} characters`
-                )
+            this.errors.name = `El nombre de su clinica debe de tener entre ${this.clinic_name_min} a ${this.clinic_name_max} caracteres`;
         }
 
         //*Checks if domain field is Emtpy
@@ -28,22 +24,16 @@ class UserValidations extends Validations {
             if (!validator.isFQDN(domain)) {
                 //* if is not a valid domain, checks if is a valid slug
                 if (!this.isSlug(domain)) {
-                    this.errors.domain = this.setResponse(
-                        "El dominio o el ID de su cuenta son invalidos, solo se permiten letras numeros y guiones, sin espacios",
-                        "The domain or the account ID are invalid, only letters, numbers and hyphen are allowed, no spaces"
-                    );
+                    this.errors.domain = "El dominio o el ID de su cuenta son invalidos, solo se permiten letras numeros y guiones, sin espacios";
                 }
             }
         } else {
-            this.errors.domain = this.setResponse(
-                "Selecione un dominio o cree una url unica para su cuenta",
-                "Select a domain or create a unique url for your account"
-            );
+            this.errors.domain = "Selecione un dominio o cree una url unica para su cuenta";
         }
 
         //* Checks if account_type is empty
         if (this.isEmpty(account_type)) {
-            this.errors.account_type = this.setResponse("Este campo es requerido", "This field is required");
+            this.errors.account_type = "Este campo es requerido";
         }
 
         //* checks if first_name is not empty and set min and max lenght
@@ -81,16 +71,14 @@ class UserValidations extends Validations {
 
         //*Checks if password field is empty
         if (this.isEmpty(password)) {
-            this.errors.password = this.setResponse("Ingrese su contraseña", "Enter your password");
+            this.errors.password = "Ingrese su contraseña";
         }
 
         //* Checks if user name is not empty and if is valid
         if (this.isEmpty(user_name)) {
-            this.errors.user_name =
-                this.setResponse("Ingrese su nombre de usuario", "Please enter your user name");
+            this.errors.user_name = "Ingrese su nombre de usuario";
         } else if (!this.isUserName(user_name)) {
-            this.errors.user_name =
-                this.setResponse("El nombre de usuario es incorrecto", "Invalid user name");
+            this.errors.user_name = "El nombre de usuario es incorrecto";
         }
 
         if (!this.isEmpty(domain)) {
@@ -98,13 +86,11 @@ class UserValidations extends Validations {
             if (!validator.isFQDN(domain)) {
                 //* if is not a valid domain, checks if is a valid slug
                 if (!this.isSlug(domain)) {
-                    this.errors.user_name =
-                        this.setResponse("El nombre de usuario incorrecto", "Invalid user name");
+                    this.errors.user_name = "El nombre de usuario incorrecto";
                 }
             }
         } else {
-            this.errors.user_name =
-                this.setResponse("El nombre de usuario incorrecto", "Invalid user name");
+            this.errors.user_name = "El nombre de usuario incorrecto";
         }
 
         if (!this.isEmpty(this.errors)) {
@@ -157,12 +143,9 @@ class UserValidations extends Validations {
 
         //* Checks if user name is not empty and if is valid
         if (this.isEmpty(user_name)) {
-            this.errors.user_name = this.setResponse("Ingrese su nombre de usuario", "Please enter your user name");
+            this.errors.user_name = "Ingrese su nombre de usuario";
         } else if (!this.isUserName(user_name)) {
-            this.errors.user_name = this.setResponse(
-                "El nombre de usuario incorrecto",
-                "Invalid user name"
-            );
+            this.errors.user_name = "El nombre de usuario incorrecto";
         }
 
         if (!this.isEmpty(domain)) {
@@ -170,11 +153,11 @@ class UserValidations extends Validations {
             if (!validator.isFQDN(domain)) {
                 //* if is not a valid domain, checks if is a valid slug
                 if (!this.isSlug(domain)) {
-                    this.errors.user_name = this.setResponse("El nombre de usuario incorrecto", "Invalid user name")
+                    this.errors.user_name = "El nombre de usuario incorrecto";
                 }
             }
         } else {
-            this.errors.user_name = this.setResponse("El nombre de usuario incorrecto", "Invalid user name");
+            this.errors.user_name = "El nombre de usuario incorrecto";
         }
 
         if (!this.isEmpty(this.errors)) {
@@ -194,7 +177,7 @@ class UserValidations extends Validations {
 
         //* Checks if token is not empty
         if (this.isEmpty(token)) {
-            this.errors.token = this.setResponse("El token es requerido", "token is requierd");
+            this.errors.token = "El token es requerido";
         }
 
         //* Checks passwords
@@ -218,7 +201,7 @@ class UserValidations extends Validations {
 
         //* Checks if currentPassword is not empty
         if (this.isEmpty(currentPassword)) {
-            this.errors.currentPassword = this.setResponse("Ingrese su contraseña", "Enter your password");
+            this.errors.currentPassword = "Ingrese su contraseña";
         }
 
         this.checkPwd(newPassword);
