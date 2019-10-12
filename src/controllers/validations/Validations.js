@@ -17,56 +17,43 @@ class Validations {
 
     checkNames(name, attributName = "", allowEmpty = false) {
         if (this.isEmpty(name) || allowEmpty) {
-            this.errors[attributName] = this.setResponse("Este campo es requerido", "This field is required");
+            this.errors[attributName] = "Este campo es requerido";
         } else if (!validator.isLength(name, { min: this.name_min, max: this.name_max })) {
-            this.errors[attributName] = this.setResponse(
-                `Este campo debe contener entre ${this.name_min} a ${this.name_max} caracteres como maximo`,
-                `This field must contain between ${this.name_min}  to ${this.name_max} characters max`
-            );
+            this.errors[attributName] = `Este campo debe contener entre ${this.name_min} a ${this.name_max} caracteres como maximo`;
         }
     }
 
     checkEmail(email, allowEmpty = false) {
         if (this.isEmpty(email) || allowEmpty) {
-            this.errors.email = this.setResponse("Por favor ingrese un correo electronico", "Please enter a valid email address");
+            this.errors.email = "Por favor ingrese un correo electronico";
         } else if (!validator.isEmail(email)) {
-            this.errors.email = this.setResponse("El formato del correo es incorrecto", "The email format is invalid");
+            this.errors.email = "El formato del correo es incorrecto";
         }
     }
 
     checkPwd(pwd) {
         if (this.isEmpty(pwd)) {
-            this.errors.password = this.setResponse("Por favor ingrese una contraseña", "Please enter a password");
+            this.errors.password = "Por favor ingrese una contraseña";
         } else if (!validator.isLength(pwd, { min: this.pwd_min, max: this.pwd_max })) {
-            this.errors.password = this.setResponse(
-                "La contraseña debe tener entre 8 a 25 caracteres",
-                "The passoword must have between 8 to 25 characters"
-            );
+            this.errors.password = "La contraseña debe tener entre 8 a 25 caracteres";
         }
     }
 
     comparePwds(pwd1, pwd2) {
         if (this.isEmpty(pwd2)) {
-            this.errors.password2 = this.setResponse("Confirme la contraseña", "Confirm the password");
+            this.errors.password2 = "Confirme la contraseña";
         } else if (!validator.equals(pwd1, pwd2)) {
-            this.errors.password2 = this.setResponse("Las contraseñas no coinciden", "Passwords don't match");
+            this.errors.password2 = "Las contraseñas no coinciden";
         }
     }
 
     checkUserName(userName) {
         if (this.isEmpty(userName)) {
-            this.errors.user_name = this.setResponse("Ingrese su nombre de usuario", "Please enter your user name");
+            this.errors.user_name = "Ingrese su nombre de usuario";
         } else if (!validator.isLength(userName, { min: this.name_min, max: this.name_max })) {
-            this.errors.user_name =
-                this.setResponse(
-                    `El nombre de usuario debe tener entre ${this.name_min} a ${this.name_max} caracteres`,
-                    `The user name must have between ${this.name_min} to ${this.name_max} characters`
-                )
+            this.errors.user_name = `El nombre de usuario debe tener entre ${this.name_min} a ${this.name_max} caracteres`;
         } else if (!this.isUserName(userName)) {
-            this.errors.user_name = this.setResponse(
-                "El nombre de usuario solo puede contener letras, numeros y guiones, sin espacios",
-                "The user name can only contain letters, numbers and hyphen, no spaces"
-            );
+            this.errors.user_name = "El nombre de usuario solo puede contener letras, numeros y guiones, sin espacios";
         }
     }
 
@@ -76,22 +63,6 @@ class Validations {
 
     capitalize(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    /**
-    * Name: setError
-    * Description: Creates a custom error object, {required fields: message: str, status:num}, {optional: field?: str instructions?: str}
-    */
-    setResponse(msgSpa, msgEng) {
-        return [msgSpa, msgEng];
-    }
-
-    /**
-    * Name: setError (static method)
-    * Description: Creates a custom error object, {required fields: message: str, status:num}, {optional: field?: str instructions?: str}
-    */
-    static setResponse(msgSpa, msgEng) {
-        return { msgSpa, msgEng }
     }
 
     /**
